@@ -39,7 +39,7 @@ grow_vertical = 2
 [node name="LeftColumn" type="VBoxContainer" parent="MainLayout"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.7
+size_flags_stretch_ratio = 0.8
 
 [node name="Title" type="Label" parent="MainLayout/LeftColumn"]
 layout_mode = 2
@@ -59,7 +59,7 @@ columns = 3
 [node name="RightInfoPanel" type="PanelContainer" parent="MainLayout"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.3
+size_flags_stretch_ratio = 0.2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MainLayout/RightInfoPanel"]
 layout_mode = 2
@@ -74,16 +74,7 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[node name="BigPortrait" type="TextureRect" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
-layout_mode = 2
-texture = ExtResource("2")
-expand_mode = 1
-stretch_mode = 5
 
-[node name="Spacer2" type="Control" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
 
 [node name="Description" type="RichTextLabel" parent="MainLayout/RightInfoPanel/VBoxContainer"]
 layout_mode = 2

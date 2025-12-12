@@ -7,7 +7,6 @@ class_name CharacterSelect
 # Referências dos nós
 @onready var character_grid: GridContainer = $MainLayout/LeftColumn/GridContainer
 @onready var character_name_label: Label = $MainLayout/RightInfoPanel/VBoxContainer/CharacterName
-@onready var big_portrait: TextureRect = $MainLayout/RightInfoPanel/VBoxContainer/BigPortrait
 @onready var description_label: RichTextLabel = $MainLayout/RightInfoPanel/VBoxContainer/Description
 @onready var stats_label: RichTextLabel = $MainLayout/RightInfoPanel/VBoxContainer/Stats/StatsText
 @onready var start_button: Button = $MainLayout/RightInfoPanel/VBoxContainer/StartButton
@@ -170,7 +169,7 @@ func _on_character_button_pressed(character: CharacterResource):
 
 func _on_character_button_hover(character: CharacterResource):
 	print("CharacterSelect: Hover sobre - ", character.character_name)
-	update_info_panel(character)
+	# Não atualizar painel no hover, apenas na seleção
 
 func select_character(character: CharacterResource):
 	print("CharacterSelect: Selecionando personagem - ", character.character_name)
@@ -201,9 +200,8 @@ func update_info_panel(character: CharacterResource):
 	if not character:
 		return
 	
-	# Atualizar informações do painel
+	# Atualizar informações do painel (apenas do personagem selecionado)
 	character_name_label.text = character.character_name
-	big_portrait.texture = character.big_portrait_texture
 	description_label.text = character.description
 	stats_label.text = character.get_stats_text()
 	
