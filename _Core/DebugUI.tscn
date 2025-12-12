@@ -1,12 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://debug_ui"]
+[gd_scene load_steps=3 format=3 uid="uid://dmwahbfvhj6nk"]
 
-[ext_resource type="Script" path="res://_Core/DebugUI.gd" id="1"]
+[ext_resource type="Script" uid="uid://57fet8u62rqh" path="res://_Core/DebugUI.gd" id="1"]
+[ext_resource type="FontFile" uid="uid://bcqu0am63n6ja" path="res://Assets/Fonts/UiFont.ttf" id="2_607lq"]
 
 [node name="DebugUI" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1")
 
@@ -17,6 +20,7 @@ anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -350.0
 offset_bottom = 600.0
+grow_horizontal = 0
 mouse_filter = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="DebugPanel"]
@@ -28,9 +32,13 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = -10.0
 offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="TitleLabel" type="Label" parent="DebugPanel/VBoxContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_607lq")
+theme_override_font_sizes/font_size = 28
 text = "DEBUG INFO (F3 to toggle)"
 horizontal_alignment = 1
 

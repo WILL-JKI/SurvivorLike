@@ -52,12 +52,21 @@ func _ready():
 	control.visible = false
 	debug_label.text = "Debug UI Pronta!"
 	
-	# Aplicar fonte UI
-	if FontManager:
-		FontManager.apply_ui_font(debug_label, 12)
-		print("SimpleDebugUI: Fonte UI aplicada")
+	# Aplicar fonte UI diretamente
+	if ResourceLoader.exists("res://Assets/Fonts/UIFont.ttf"):
+		var ui_font = load("res://Assets/Fonts/UIFont.ttf")
+		debug_label.add_theme_font_override("normal_font", ui_font)
+		debug_label.add_theme_font_size_override("normal_font_size", 14)
+		print("SimpleDebugUI: UiFont aplicada diretamente")
 	else:
-		print("SimpleDebugUI: FontManager não encontrado")
+		print("SimpleDebugUI: UIFont.ttf não encontrada")
+		# Tentar através do FontManager como fallback
+		if FontManager and FontManager.ui_font:
+			debug_label.add_theme_font_override("normal_font", FontManager.ui_font)
+			debug_label.add_theme_font_size_override("normal_font_size", 14)
+			print("SimpleDebugUI: Fonte UI aplicada via FontManager")
+		else:
+			print("SimpleDebugUI: Nenhuma fonte UI disponível")
 	
 	print("SimpleDebugUI: Inicialização completa (ESC para ativar)")
 
