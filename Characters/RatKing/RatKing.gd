@@ -33,6 +33,11 @@ var current_level: int = 1
 var active_minions: Array[RatMinion] = []
 var evolution_route: String = ""  # "swarm", "beast", ou ""
 
+# Variáveis de movimento para os minions
+var is_moving: bool = false
+var last_position: Vector2 = Vector2.ZERO
+var movement_check_timer: float = 0.0
+
 # Referências de nós
 @onready var spawn_timer: Timer = $SpawnTimer
 @onready var sprite: Sprite2D = $Sprite2D
@@ -62,6 +67,7 @@ func _ready():
 
 func _physics_process(delta):
 	handle_movement(delta)
+	update_movement_state(delta)
 	clean_dead_minions()
 
 func handle_movement(delta):
@@ -86,6 +92,22 @@ func handle_movement(delta):
 	
 	# Mover o personagem
 	move_and_slide()
+
+func update_movement_state(delta):
+	# Verificar se o player está se movendo
+	movement_check_timer += delta
+	
+	if movement_check_timer >= 0.1:  # Verificar a cada 0.1 segundos
+		var current_position = global_position
+		var distance_moved = current_position.distance_to(last_position)
+		
+		is_moving = distance_moved > 1.0  # Threshold de movimento
+		last_position = current_position
+		movement_check_timer = 0.0
+
+# Função para os minions verificarem se o King está se movendo
+func get_is_moving() -> bool:
+	return is_moving
 
 func _on_spawn_timer_timeout():
 	# Spawnar múltiplos minions se necessário

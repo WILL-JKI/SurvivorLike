@@ -32,6 +32,9 @@ var formation_position: Vector2 = Vector2.ZERO
 var formation_angle: float = 0.0
 var formation_distance: float = 50.0
 var follow_distance: float = 80.0
+var is_in_formation: bool = false
+var formation_tolerance: float = 8.0  # Distância para considerar "na posição"
+var formation_update_timer: float = 0.0
 
 # Referências de nós
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -63,9 +66,11 @@ func _physics_process(delta):
 	update_state()
 	execute_state(delta)
 	
-	# Atualizar formação periodicamente
-	if current_state == State.ORGANIZE:
+	# Atualizar formação periodicamente (menos frequente)
+	formation_update_timer += delta
+	if current_state == State.ORGANIZE and formation_update_timer >= 1.0:
 		update_formation_position()
+		formation_update_timer = 0.0
 	
 	# Reduzir cooldown de ataque
 	if attack_cooldown > 0:
@@ -221,6 +226,11 @@ func organize_around_king(delta):
 		velocity = Vector2.ZERO
 		return
 	
+	# Verificar se o King está se movendo
+	var king_is_moving = false
+	if rat_king.has_method("get_is_moving"):
+		king_is_moving = rat_king.get_is_moving()
+	
 	# Calcular posição desejada na formação
 	var desired_position = rat_king.global_position + Vector2(
 		cos(formation_angle) * formation_distance,
@@ -231,16 +241,29 @@ func organize_around_king(delta):
 	var direction = (desired_position - global_position)
 	var distance = direction.length()
 	
-	if distance > 5.0:  # Se não está na posição
+	if distance > formation_tolerance:  # Se não está na posição
 		direction = direction.normalized()
 		velocity = direction * speed * 0.8  # Movimento mais suave
 		global_position += velocity * delta
+		is_in_formation = false
 	else:
-		# Patrulhar lentamente ao redor da posição
-		formation_angle += delta * 0.5  # Rotação lenta
-		velocity = Vector2.ZERO
+		# Está na posição da formação
+		is_in_formation = true
+		
+		if king_is_moving:
+			# Se o King está se movendo, seguir mantendo a formação
+			velocity = direction.normalized() * speed * 0.3  # Movimento muito suave
+			global_position += velocity * delta
+		else:
+			# Se o King está parado, ficar completamente parado
+			velocity = Vector2.ZERO
 
 func update_formation_position():
+	# Só atualizar formação se não estiver parado na posição
+	if is_in_formation and rat_king and rat_king.has_method("get_is_moving"):
+		if not rat_king.get_is_moving():
+			return  # Não reorganizar se o King está parado
+	
 	# Atualizar posição na formação para evitar sobreposição
 	var minions = get_tree().get_nodes_in_group("minions")
 	var nearby_minions = 0
@@ -248,14 +271,15 @@ func update_formation_position():
 	for minion in minions:
 		if minion != self and is_instance_valid(minion):
 			var distance = global_position.distance_to(minion.global_position)
-			if distance < 25.0:  # Muito próximo
+			if distance < 20.0:  # Muito próximo
 				nearby_minions += 1
 	
-	# Ajustar distância se há muitos minions próximos
-	if nearby_minions > 2:
-		formation_distance = min(formation_distance + 10.0, 80.0)
-	elif nearby_minions == 0:
-		formation_distance = max(formation_distance - 5.0, 30.0)
+	# Ajustar ângulo se há muitos minions próximos (ao invés de distância)
+	if nearby_minions > 1:
+		formation_angle += randf_range(-0.3, 0.3)  # Pequeno ajuste no ângulo
+	
+	# Manter distância dentro de limites razoáveis
+	formation_distance = clamp(formation_distance, 35.0, 70.0)
 
 # Função para aplicar upgrades externos
 func apply_upgrade(upgrade_data: Dictionary):
