@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="survivorlike"
-run/main_scene="res://levels/Debug/BerserkerTestLevel.tscn"
+run/main_scene="res://UI/CharacterSelection.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 run/max_fps=144
 config/icon="res://icon.svg"
@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 NodeGroupCache="*res://_Core/NodeGroupCache.gd"
 FontManager="*res://_Core/FontManager.gd"
 DebugManager="*res://_Core/DebugManager.gd"
+GameManager="*res://_Core/GameManager.gd"
 
 [display]
 
