@@ -1,35 +1,35 @@
-[gd_scene load_steps=4 format=3 uid="uid://d5xgkqnf0tr"]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="PackedScene" uid="uid://c4xgkqnf0tr" path="res://Characters/Berserker/BerserkerPlayer.tscn" id="1_4d5e6"]
-[ext_resource type="PackedScene" path="res://Enemies/SimpleEnemy.tscn" id="2_5e6f7"]
-[ext_resource type="Script" path="res://_Core/EnemySpawner.gd" id="3_6f7g8"]
+[ext_resource type="PackedScene" path="res://Characters/Berserker/BerserkerPlayer.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Enemies/SimpleEnemy.tscn" id="2"]
+[ext_resource type="Script" path="res://_Core/EnemySpawner.gd" id="3"]
 
 [node name="BerserkerTestLevel" type="Node2D"]
 
-[node name="BerserkerPlayer" parent="." instance=ExtResource("1_4d5e6")]
+[node name="BerserkerPlayer" parent="." instance=ExtResource("1")]
 
 [node name="EnemySpawner" type="Node2D" parent="."]
-script = ExtResource("3_6f7g8")
-enemy_scene = ExtResource("2_5e6f7")
+script = ExtResource("3")
+enemy_scene = ExtResource("2")
 spawn_rate = 2.0
 max_enemies = 20
 spawn_distance = 200.0
 
 [node name="TestEnemies" type="Node2D" parent="."]
 
-[node name="SimpleEnemy" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
+[node name="SimpleEnemy" parent="TestEnemies" instance=ExtResource("2")]
 position = Vector2(100, 0)
 
-[node name="SimpleEnemy2" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
+[node name="SimpleEnemy2" parent="TestEnemies" instance=ExtResource("2")]
 position = Vector2(-100, 0)
 
-[node name="SimpleEnemy3" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
+[node name="SimpleEnemy3" parent="TestEnemies" instance=ExtResource("2")]
 position = Vector2(0, 100)
 
-[node name="SimpleEnemy4" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
+[node name="SimpleEnemy4" parent="TestEnemies" instance=ExtResource("2")]
 position = Vector2(0, -100)
 
-[node name="SimpleEnemy5" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
+[node name="SimpleEnemy5" parent="TestEnemies" instance=ExtResource("2")]
 position = Vector2(70, 70)
 
 [node name="UI" type="CanvasLayer" parent="."]
