@@ -26,7 +26,7 @@ offset_right = -10.0
 offset_bottom = -10.0
 modulate = Color(0, 0, 0, 0.8)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DebugPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/DebugPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,7 +36,7 @@ offset_top = 10.0
 offset_right = -10.0
 offset_bottom = -10.0
 
-[node name="DebugLabel" type="RichTextLabel" parent="DebugPanel/VBoxContainer"]
+[node name="DebugLabel" type="RichTextLabel" parent="Control/DebugPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true

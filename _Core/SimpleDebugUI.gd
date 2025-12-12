@@ -5,74 +5,54 @@ extends CanvasLayer
 var is_debug_visible: bool = false
 var update_timer: float = 0.0
 
-@onready var control: Control = $Control
-@onready var debug_panel: Panel = $Control/DebugPanel
-@onready var debug_label: RichTextLabel = $Control/DebugPanel/VBoxContainer/DebugLabel
+# Referências dos nós (serão definidas em _ready)
+var control: Control
+var debug_panel: Panel
+var debug_label: RichTextLabel
 
 func _ready():
-	# Configurar UI
-	control.visible = false
+	# Configurar layer
 	layer = 100  # CanvasLayer alto para ficar na frente
 	
 	# Configurar input
 	set_process_unhandled_input(true)
 	
-	# Debug detalhado da estrutura
-	print("SimpleDebugUI: === DEBUG DA ESTRUTURA ===")
-	print("Nós filhos diretos:")
-	for child in get_children():
-		print("  - ", child.name, " (", child.get_class(), ")")
+	# Encontrar nós manualmente (mais confiável que @onready)
+	print("SimpleDebugUI: === INICIALIZANDO ===")
 	
-	# Verificar se todos os nós foram encontrados
+	# Buscar Control
+	control = get_node_or_null("Control")
 	if not control:
 		print("SimpleDebugUI: ERRO - Control não encontrado!")
-		# Tentar encontrar manualmente
-		var control_node = get_node_or_null("Control")
-		if control_node:
-			print("  -> Control encontrado manualmente!")
-			control = control_node
-	else:
-		print("SimpleDebugUI: Control encontrado")
-		print("  Filhos do Control:")
-		for child in control.get_children():
-			print("    - ", child.name, " (", child.get_class(), ")")
+		return
+	print("SimpleDebugUI: Control encontrado")
 	
+	# Buscar DebugPanel
+	debug_panel = control.get_node_or_null("DebugPanel")
 	if not debug_panel:
 		print("SimpleDebugUI: ERRO - DebugPanel não encontrado!")
-		# Tentar encontrar manualmente
-		if control:
-			var panel_node = control.get_node_or_null("DebugPanel")
-			if panel_node:
-				print("  -> DebugPanel encontrado manualmente!")
-				debug_panel = panel_node
-	else:
-		print("SimpleDebugUI: DebugPanel encontrado")
-		print("  Filhos do DebugPanel:")
-		for child in debug_panel.get_children():
-			print("    - ", child.name, " (", child.get_class(), ")")
-			if child.name == "VBoxContainer":
-				print("      Filhos do VBoxContainer:")
-				for grandchild in child.get_children():
-					print("        - ", grandchild.name, " (", grandchild.get_class(), ")")
+		return
+	print("SimpleDebugUI: DebugPanel encontrado")
 	
+	# Buscar VBoxContainer
+	var vbox = debug_panel.get_node_or_null("VBoxContainer")
+	if not vbox:
+		print("SimpleDebugUI: ERRO - VBoxContainer não encontrado!")
+		return
+	print("SimpleDebugUI: VBoxContainer encontrado")
+	
+	# Buscar DebugLabel
+	debug_label = vbox.get_node_or_null("DebugLabel")
 	if not debug_label:
 		print("SimpleDebugUI: ERRO - DebugLabel não encontrado!")
-		# Tentar encontrar manualmente
-		if debug_panel:
-			var vbox = debug_panel.get_node_or_null("VBoxContainer")
-			if vbox:
-				var label_node = vbox.get_node_or_null("DebugLabel")
-				if label_node:
-					print("  -> DebugLabel encontrado manualmente!")
-					debug_label = label_node
-				else:
-					print("  -> DebugLabel NÃO encontrado no VBoxContainer")
-			else:
-				print("  -> VBoxContainer não encontrado no DebugPanel")
-	else:
-		print("SimpleDebugUI: DebugLabel encontrado - texto inicial: ", debug_label.text)
+		return
+	print("SimpleDebugUI: DebugLabel encontrado")
 	
-	print("SimpleDebugUI: Pronto (ESC para ativar)")
+	# Configurar UI
+	control.visible = false
+	debug_label.text = "Debug UI Pronta!"
+	
+	print("SimpleDebugUI: Inicialização completa (ESC para ativar)")
 
 func _unhandled_input(event):
 	if Input.is_action_just_pressed("ui_cancel"):  # ESC como alternativa
@@ -99,22 +79,7 @@ func toggle_debug():
 func update_debug_info():
 	if not debug_label:
 		print("SimpleDebugUI: ERRO - debug_label não encontrado!")
-		# Tentar encontrar novamente
-		if debug_panel:
-			var vbox = debug_panel.get_node_or_null("VBoxContainer")
-			if vbox:
-				debug_label = vbox.get_node_or_null("DebugLabel")
-				if debug_label:
-					print("SimpleDebugUI: DebugLabel encontrado na segunda tentativa!")
-				else:
-					print("SimpleDebugUI: DebugLabel ainda não encontrado")
-					return
-			else:
-				print("SimpleDebugUI: VBoxContainer não encontrado")
-				return
-		else:
-			print("SimpleDebugUI: DebugPanel não encontrado")
-			return
+		return
 	
 	print("SimpleDebugUI: Atualizando informações de debug...")
 	var debug_text = ""
