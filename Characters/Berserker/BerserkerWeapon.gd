@@ -26,7 +26,7 @@ func _ready():
 	# Configurar área
 	add_to_group("player_weapons")
 	collision_layer = 0  # Não colide com nada
-	collision_mask = 4   # Detecta inimigos (layer 4)
+	collision_mask = 2   # Detecta inimigos (layer 2)
 	
 	# Conectar sinais
 	area_entered.connect(_on_area_entered)

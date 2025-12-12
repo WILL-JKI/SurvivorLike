@@ -73,7 +73,7 @@ func _ready():
 func setup_fury_detector():
 	# Configurar área de detecção de fúria
 	fury_detector.collision_layer = 0
-	fury_detector.collision_mask = 4  # Detecta inimigos
+	fury_detector.collision_mask = 2  # Detecta inimigos (layer 2)
 	
 	# Conectar sinais
 	fury_detector.area_entered.connect(_on_fury_area_entered)
@@ -117,6 +117,10 @@ func handle_combat(delta):
 	# Ataque automático quando há inimigos próximos
 	if enemies_in_fury_range > 0 and attack_timer.is_stopped():
 		attack()
+	
+	# Debug: mostrar status a cada 2 segundos
+	if Engine.get_process_frames() % 120 == 0:  # A cada 2 segundos (60 FPS)
+		print("BerserkerPlayer: Debug - Inimigos próximos: %d, Timer parado: %s" % [enemies_in_fury_range, attack_timer.is_stopped()])
 
 func attack():
 	# Calcular cooldown com base na fúria
@@ -146,24 +150,30 @@ func _on_weapon_attack_completed():
 
 # Funções do detector de fúria
 func _on_fury_area_entered(area: Area2D):
+	print("BerserkerPlayer: Area detectada: ", area.name, " - Grupos: ", area.get_groups())
 	if area.is_in_group("enemies"):
 		enemies_in_fury_range += 1
 		update_fury_visual()
+		print("BerserkerPlayer: Inimigo (Area) entrou na fúria!")
 
 func _on_fury_area_exited(area: Area2D):
 	if area.is_in_group("enemies"):
 		enemies_in_fury_range = max(0, enemies_in_fury_range - 1)
 		update_fury_visual()
+		print("BerserkerPlayer: Inimigo (Area) saiu da fúria!")
 
 func _on_fury_body_entered(body: Node2D):
+	print("BerserkerPlayer: Body detectado: ", body.name, " - Grupos: ", body.get_groups())
 	if body.is_in_group("enemies"):
 		enemies_in_fury_range += 1
 		update_fury_visual()
+		print("BerserkerPlayer: Inimigo (Body) entrou na fúria!")
 
 func _on_fury_body_exited(body: Node2D):
 	if body.is_in_group("enemies"):
 		enemies_in_fury_range = max(0, enemies_in_fury_range - 1)
 		update_fury_visual()
+		print("BerserkerPlayer: Inimigo (Body) saiu da fúria!")
 
 func update_fury_visual():
 	# Efeito visual baseado na fúria
