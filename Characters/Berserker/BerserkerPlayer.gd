@@ -73,11 +73,15 @@ func _ready():
 func setup_fury_detector():
 	# Configurar área de detecção de fúria
 	fury_detector.collision_layer = 0
-	fury_detector.collision_mask = 4  # Detecta inimigos (layer 4)
+	fury_detector.collision_mask = 2  # Detecta inimigos (layer 2)
 	
 	# Conectar sinais
 	fury_detector.area_entered.connect(_on_fury_area_entered)
 	fury_detector.area_exited.connect(_on_fury_area_exited)
+	fury_detector.body_entered.connect(_on_fury_body_entered)
+	fury_detector.body_exited.connect(_on_fury_body_exited)
+	
+	print("BerserkerPlayer: FuryDetector configurado - Layer: 0, Mask: 2")
 	fury_detector.body_entered.connect(_on_fury_body_entered)
 	fury_detector.body_exited.connect(_on_fury_body_exited)
 
@@ -114,8 +118,14 @@ func handle_knockback(delta):
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_friction * delta)
 
 func handle_combat(delta):
+	# Teste manual de ataque (pressione SPACE)
+	if Input.is_action_just_pressed("ui_accept"):  # SPACE
+		print("BerserkerPlayer: Ataque manual ativado!")
+		attack()
+	
 	# Ataque automático quando há inimigos próximos
 	if enemies_in_fury_range > 0 and attack_timer.is_stopped():
+		print("BerserkerPlayer: Condições para ataque atendidas!")
 		attack()
 	
 	# Debug: mostrar status a cada 2 segundos
