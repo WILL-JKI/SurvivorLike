@@ -17,6 +17,9 @@ func _ready():
 	# Configurar input
 	set_process_unhandled_input(true)
 	
+	# Otimização: não processar até ser ativado
+	set_process(false)
+	
 	# Encontrar nós manualmente (mais confiável que @onready)
 	print("SimpleDebugUI: === INICIALIZANDO ===")
 	
@@ -92,6 +95,9 @@ func toggle_debug():
 	is_debug_visible = not is_debug_visible
 	control.visible = is_debug_visible
 	
+	# Otimização: só processar quando visível
+	set_process(is_debug_visible)
+	
 	if is_debug_visible:
 		update_debug_info()
 		print("Debug UI ativada")
@@ -103,59 +109,79 @@ func update_debug_info():
 		print("SimpleDebugUI: ERRO - debug_label não encontrado!")
 		return
 	
-	print("SimpleDebugUI: Atualizando informações de debug...")
-	var debug_text = ""
+	# Usar Array para StringBuilder (mais eficiente)
+	var debug_lines: Array[String] = []
 	
 	# Performance
-	debug_text += "[color=yellow][b]PERFORMANCE[/b][/color]\n"
-	debug_text += "FPS: " + str(Engine.get_frames_per_second()) + "\n"
-	debug_text += "Frame Time: " + str(snapped(1.0 / max(Engine.get_frames_per_second(), 1) * 1000, 0.1)) + "ms\n"
-	debug_text += "Memory: " + format_bytes(OS.get_static_memory_peak_usage()) + "\n"
-	debug_text += "\n"
+	debug_lines.append("[color=yellow][b]PERFORMANCE[/b][/color]")
+	debug_lines.append("FPS: %d" % Engine.get_frames_per_second())
+	debug_lines.append("Frame Time: %.1fms" % (1.0 / max(Engine.get_frames_per_second(), 1) * 1000))
+	debug_lines.append("Memory: %s" % format_bytes(OS.get_static_memory_peak_usage()))
+	debug_lines.append("")
 	
 	# Entidades
-	debug_text += "[color=cyan][b]ENTITIES[/b][/color]\n"
+	debug_lines.append("[color=cyan][b]ENTITIES[/b][/color]")
 	var entity_counts = get_entity_counts()
-	debug_text += "XP Orbs (x): " + str(entity_counts.xp_orbs) + "\n"
-	debug_text += "Enemies (e): " + str(entity_counts.enemies) + "\n"
-	debug_text += "Bosses (b): " + str(entity_counts.bosses) + "\n"
-	debug_text += "Minions (m): " + str(entity_counts.minions) + "\n"
-	debug_text += "Players (p): " + str(entity_counts.players) + "\n"
-	debug_text += "Total Nodes: " + str(get_tree().get_node_count()) + "\n"
-	debug_text += "\n"
+	debug_lines.append("XP Orbs (x): %d" % entity_counts.xp_orbs)
+	debug_lines.append("Enemies (e): %d" % entity_counts.enemies)
+	debug_lines.append("Bosses (b): %d" % entity_counts.bosses)
+	debug_lines.append("Minions (m): %d" % entity_counts.minions)
+	debug_lines.append("Players (p): %d" % entity_counts.players)
+	debug_lines.append("Total Nodes: %d" % get_tree().get_node_count())
+	debug_lines.append("")
 	
 	# Player Info
 	var player_info = get_player_info()
 	if player_info:
-		debug_text += "[color=green][b]PLAYER[/b][/color]\n"
-		debug_text += "Level: " + str(player_info.level) + "\n"
-		debug_text += "Health: " + str(int(player_info.health)) + "/" + str(int(player_info.max_health)) + "\n"
-		debug_text += "XP: " + str(player_info.experience) + "/" + str(player_info.exp_to_next) + "\n"
-		debug_text += "\n"
+		debug_lines.append("[color=green][b]PLAYER[/b][/color]")
+		debug_lines.append("Level: %s" % str(player_info.level))
+		debug_lines.append("Health: %d/%d" % [int(player_info.health), int(player_info.max_health)])
+		debug_lines.append("XP: %s/%s" % [str(player_info.experience), str(player_info.exp_to_next)])
+		debug_lines.append("")
 	
 	# Controles
-	debug_text += "[color=magenta][b]CONTROLS[/b][/color]\n"
-	debug_text += "ESC: Toggle Debug\n"
-	debug_text += "WASD: Move Player\n"
+	debug_lines.append("[color=magenta][b]CONTROLS[/b][/color]")
+	debug_lines.append("ESC: Toggle Debug")
+	debug_lines.append("WASD: Move Player")
 	
-	debug_label.text = debug_text
-	print("SimpleDebugUI: Texto definido - comprimento: ", debug_text.length())
+	# Juntar todas as linhas de uma vez (mais eficiente)
+	debug_label.text = "\n".join(debug_lines)
 
 func get_entity_counts() -> Dictionary:
-	return {
-		"xp_orbs": get_tree().get_nodes_in_group("xp_orbs").size(),
-		"enemies": get_tree().get_nodes_in_group("enemies").size() - get_tree().get_nodes_in_group("boss").size(),
-		"bosses": get_tree().get_nodes_in_group("boss").size(),
-		"minions": get_tree().get_nodes_in_group("minions").size(),
-		"players": get_tree().get_nodes_in_group("players").size()
-	}
+	# Usar cache se disponível, senão usar método direto
+	if NodeGroupCache:
+		return {
+			"xp_orbs": NodeGroupCache.get_group_size_cached("xp_orbs"),
+			"enemies": NodeGroupCache.get_group_size_cached("enemies") - NodeGroupCache.get_group_size_cached("boss"),
+			"bosses": NodeGroupCache.get_group_size_cached("boss"),
+			"minions": NodeGroupCache.get_group_size_cached("minions"),
+			"players": NodeGroupCache.get_group_size_cached("players")
+		}
+	else:
+		# Fallback sem cache
+		var bosses_count = get_tree().get_nodes_in_group("boss").size()
+		return {
+			"xp_orbs": get_tree().get_nodes_in_group("xp_orbs").size(),
+			"enemies": get_tree().get_nodes_in_group("enemies").size() - bosses_count,
+			"bosses": bosses_count,
+			"minions": get_tree().get_nodes_in_group("minions").size(),
+			"players": get_tree().get_nodes_in_group("players").size()
+		}
+
+# Cache do player para evitar busca constante
+var cached_player: Node = null
+var player_cache_timer: float = 0.0
 
 func get_player_info() -> Dictionary:
-	var players = get_tree().get_nodes_in_group("players")
-	if players.size() > 0:
-		var player = players[0]
-		if player.has_method("get_player_info"):
-			return player.get_player_info()
+	# Atualizar cache do player a cada 1 segundo
+	player_cache_timer -= get_process_delta_time()
+	if player_cache_timer <= 0 or not cached_player or not is_instance_valid(cached_player):
+		player_cache_timer = 1.0
+		var players = NodeGroupCache.get_nodes_in_group_cached("players") if NodeGroupCache else get_tree().get_nodes_in_group("players")
+		cached_player = players[0] if players.size() > 0 else null
+	
+	if cached_player and cached_player.has_method("get_player_info"):
+		return cached_player.get_player_info()
 	return {}
 
 func format_bytes(bytes: int) -> String:
