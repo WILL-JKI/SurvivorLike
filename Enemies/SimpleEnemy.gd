@@ -6,6 +6,7 @@ class_name SimpleEnemy
 @export var movement_speed: float = 80.0
 @export var damage: float = 15.0
 @export var detection_range: float = 100.0
+@export var attack_range: float = 25.0
 
 # Variáveis internas
 var current_health: float
