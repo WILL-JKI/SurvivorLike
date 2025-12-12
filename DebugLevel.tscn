@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://debug_level"]
+
+[ext_resource type="PackedScene" uid="uid://cqm8xvw7n5ys" path="res://Characters/RatKing/RatKing.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://test_boss_scene" path="res://Enemies/TestBoss.tscn" id="2"]
+
+[node name="DebugLevel" type="Node2D"]
+
+[node name="RatKing" parent="." instance=ExtResource("1")]
+position = Vector2(400, 300)
+
+[node name="TestBoss" parent="." instance=ExtResource("2")]
+position = Vector2(600, 200)

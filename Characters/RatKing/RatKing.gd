@@ -40,8 +40,8 @@ var movement_check_timer: float = 0.0
 
 # Variáveis de câmera
 var current_boss: Node2D = null
-var camera_base_zoom: Vector2 = Vector2(4.0, 4.0)  # Zoom para estética 16x16
-var camera_boss_zoom: Vector2 = Vector2(2.5, 2.5)  # Zoom menor para bosses
+var camera_base_zoom: Vector2 = Vector2(1.5, 1.5)  # Zoom para estética 16x16
+var camera_boss_zoom: Vector2 = Vector2(1, 1)  # Zoom menor para bosses
 var camera_smooth_speed: float = 3.0
 var boss_camera_offset_strength: float = 0.25  # 25% em direção ao boss
 var boss_detection_range: float = 400.0  # Distância para detectar boss
