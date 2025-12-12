@@ -317,8 +317,8 @@ func setup_camera():
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = camera_smooth_speed
 	
-	# Configurar para pixel perfect
-	camera.snap_to_pixel = true
+	# Configurar para pixel perfect (Godot 4 não tem snap_to_pixel)
+	# O pixel perfect é controlado pelas configurações do projeto
 	
 	print("Câmera configurada - Zoom: ", camera_base_zoom)
 
