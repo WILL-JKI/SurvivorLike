@@ -34,7 +34,7 @@ func setup_fonts():
 	print("FontManager: Fontes configuradas")
 
 # Função para aplicar fonte pixel art a um Label
-func apply_pixel_font(label: Label, size: int = 12):
+func apply_pixel_font(label: Label, size: int = 16):
 	if pixel_font:
 		label.add_theme_font_override("font", pixel_font)
 	
@@ -59,7 +59,7 @@ func create_pixel_theme() -> Theme:
 	if pixel_font:
 		theme.default_font = pixel_font
 	
-	theme.default_font_size = 12
+	theme.default_font_size = 16
 	
 	# Configurações para Labels
 	theme.set_color("font_color", "Label", Color.WHITE)

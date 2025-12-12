@@ -149,10 +149,21 @@ func show_damage_number(damage: float, damage_type: String = "normal"):
 func die():
 	print("Inimigo morreu!")
 	
-	# Dar experiência ao player
-	var players = get_tree().get_nodes_in_group("players")
-	for player in players:
-		if player.has_method("gain_experience"):
-			player.gain_experience(25)
+	# Dropar orb de XP
+	drop_xp_orb()
 	
 	queue_free()
+
+func drop_xp_orb():
+	# Carregar e instanciar orb de XP
+	var xp_orb_scene = load("res://_Core/XPOrb.tscn")
+	var xp_orb = xp_orb_scene.instantiate()
+	
+	# Posicionar na posição do inimigo
+	xp_orb.global_position = global_position
+	
+	# Configurar valor da orb (inimigo normal)
+	xp_orb.setup_xp_orb(15, "normal")
+	
+	# Adicionar à cena
+	get_parent().add_child(xp_orb)

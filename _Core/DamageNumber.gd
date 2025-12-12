@@ -24,7 +24,7 @@ func _ready():
 func setup_pixel_font():
 	# Usar FontManager se disponível
 	if FontManager:
-		FontManager.apply_pixel_font(self, 12)
+		FontManager.apply_pixel_font(self, 16)
 	else:
 		# Fallback manual
 		add_theme_font_size_override("font_size", 12)

@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://coqserh8d5fqt"
-path="res://.godot/imported/Gamer.ttf-647846638abdc197656455d48f0de8ef.fontdata"
+uid="uid://bcqu0am63n6ja"
+path="res://.godot/imported/UiFont.ttf-b29252713b755f11e0a261a90749fbe5.fontdata"
 
 [deps]
 
-source_file="res://Assets/Fonts/Gamer.ttf"
-dest_files=["res://.godot/imported/Gamer.ttf-647846638abdc197656455d48f0de8ef.fontdata"]
+source_file="res://Assets/Fonts/UiFont.ttf"
+dest_files=["res://.godot/imported/UiFont.ttf-b29252713b755f11e0a261a90749fbe5.fontdata"]
 
 [params]
 

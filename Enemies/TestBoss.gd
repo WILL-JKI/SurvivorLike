@@ -80,10 +80,29 @@ func show_damage_number(damage: float, damage_type: String = "boss"):
 func die():
 	print("Test Boss foi derrotado!")
 	
-	# Dar experiência ao player
-	var players = get_tree().get_nodes_in_group("players")
-	for player in players:
-		if player.has_method("gain_experience"):
-			player.gain_experience(100)
+	# Dropar múltiplas orbs de XP (boss)
+	drop_boss_xp_orbs()
 	
-	queue_free()
+	# Efeito de morte
+	modulate = Color.BLACK
+	var tween = create_tween()
+	tween.tween_property(self, "scale", Vector2.ZERO, 0.5)
+	tween.tween_callback(queue_free)
+
+func drop_boss_xp_orbs():
+	# Boss dropa múltiplas orbs
+	var orb_count = randi_range(3, 5)
+	
+	for i in orb_count:
+		var xp_orb_scene = load("res://_Core/XPOrb.tscn")
+		var xp_orb = xp_orb_scene.instantiate()
+		
+		# Posicionar ao redor do boss
+		var offset = Vector2(randf_range(-30, 30), randf_range(-30, 30))
+		xp_orb.global_position = global_position + offset
+		
+		# Configurar como orb de boss
+		xp_orb.setup_xp_orb(50, "boss")
+		
+		# Adicionar à cena
+		get_parent().add_child(xp_orb)
