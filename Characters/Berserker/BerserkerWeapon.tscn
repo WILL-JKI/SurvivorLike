@@ -1,12 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://berserker_weapon"]
+[gd_scene load_steps=3 format=3 uid="uid://bvqxgkqnf0tr"]
 
-[ext_resource type="Script" path="res://Characters/Berserker/BerserkerWeapon.gd" id="1"]
+[ext_resource type="Script" path="res://Characters/Berserker/BerserkerWeapon.gd" id="1_1a2b3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 50.0
 
 [node name="BerserkerWeapon" type="Area2D"]
-script = ExtResource("1")
+script = ExtResource("1_1a2b3")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_1")

@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://berserker_player"]
+[gd_scene load_steps=5 format=3 uid="uid://c4xgkqnf0tr"]
 
-[ext_resource type="Script" path="res://Characters/Berserker/BerserkerPlayer.gd" id="1"]
-[ext_resource type="PackedScene" uid="uid://berserker_weapon" path="res://Characters/Berserker/BerserkerWeapon.tscn" id="2"]
+[ext_resource type="Script" path="res://Characters/Berserker/BerserkerPlayer.gd" id="1_2b3c4"]
+[ext_resource type="PackedScene" uid="uid://bvqxgkqnf0tr" path="res://Characters/Berserker/BerserkerWeapon.tscn" id="2_3c4d5"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 8.0
@@ -10,7 +10,7 @@ radius = 8.0
 radius = 100.0
 
 [node name="BerserkerPlayer" type="CharacterBody2D"]
-script = ExtResource("1")
+script = ExtResource("1_2b3c4")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(1, 0.7, 0.7, 1)
@@ -20,7 +20,7 @@ texture = preload("res://icon.svg")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_1")
 
-[node name="BerserkerWeapon" parent="." instance=ExtResource("2")]
+[node name="BerserkerWeapon" parent="." instance=ExtResource("2_3c4d5")]
 
 [node name="FuryDetector" type="Area2D" parent="."]
 
