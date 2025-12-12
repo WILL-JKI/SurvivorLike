@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cbpt70xeqwow1"]
 
 [ext_resource type="PackedScene" uid="uid://dlkisc7bn1cuv" path="res://Characters/Berserker/BerserkerPlayer.tscn" id="1_4d5e6"]
-[ext_resource type="PackedScene" uid="uid://bqxgkqnf0tr" path="res://Enemies/SimpleEnemy.tscn" id="2_5e6f7"]
+[ext_resource type="PackedScene" path="res://Enemies/SimpleEnemy.tscn" id="2_5e6f7"]
 [ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="3_6f7g8"]
 
 [node name="BerserkerTestLevel" type="Node2D"]
@@ -10,27 +10,25 @@
 
 [node name="EnemySpawner" type="Node2D" parent="."]
 script = ExtResource("3_6f7g8")
-enemy_scene = ExtResource("2_5e6f7")
 spawn_rate = 2.0
 max_enemies = 20
-spawn_distance = 200.0
 
 [node name="TestEnemies" type="Node2D" parent="."]
 
 [node name="SimpleEnemy" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
-position = Vector2(100, 0)
+position = Vector2(287, -141)
 
 [node name="SimpleEnemy2" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
-position = Vector2(-100, 0)
+position = Vector2(269, 71)
 
 [node name="SimpleEnemy3" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
 position = Vector2(0, 100)
 
 [node name="SimpleEnemy4" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
-position = Vector2(0, -100)
+position = Vector2(208, -31)
 
 [node name="SimpleEnemy5" parent="TestEnemies" instance=ExtResource("2_5e6f7")]
-position = Vector2(70, 70)
+position = Vector2(213, 153)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -42,6 +40,7 @@ offset_left = 10.0
 offset_top = -100.0
 offset_right = 400.0
 offset_bottom = -10.0
+theme_override_font_sizes/font_size = 12
 text = "BERSERKER TEST LEVEL
 
 WASD: Mover
@@ -52,4 +51,3 @@ MECÂNICAS:
 - Mais inimigos próximos = ataque mais rápido
 - Área de ataque em volta do player
 - Knockback nos inimigos"
-theme_override_font_sizes/font_size = 12

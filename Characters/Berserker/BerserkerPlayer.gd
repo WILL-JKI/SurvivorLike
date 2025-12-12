@@ -173,9 +173,13 @@ func update_fury_visual():
 	print("BerserkerPlayer: Fúria atualizada - Inimigos próximos: %d" % enemies_in_fury_range)
 
 # Funções de dano e cura
-func take_damage(amount: float):
+func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
 	current_health -= amount
 	current_health = max(0, current_health)
+	
+	# Aplicar knockback se fornecido
+	if knockback_force != Vector2.ZERO:
+		apply_knockback(knockback_force)
 	
 	# Efeito visual de dano
 	create_damage_effect()

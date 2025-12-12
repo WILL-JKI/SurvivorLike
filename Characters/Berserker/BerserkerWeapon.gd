@@ -105,7 +105,13 @@ func hit_enemy(enemy: Node2D):
 	
 	# Aplicar dano
 	if enemy.has_method("take_damage"):
-		enemy.take_damage(current_damage)
+		# Calcular knockback para passar junto com o dano
+		var player_pos = get_parent().global_position
+		var enemy_pos = enemy.global_position
+		var knockback_direction = (enemy_pos - player_pos).normalized()
+		var knockback_vec = knockback_direction * knockback_force
+		
+		enemy.take_damage(current_damage, knockback_vec)
 	
 	# Aplicar knockback
 	apply_knockback(enemy)
@@ -119,17 +125,17 @@ func hit_enemy(enemy: Node2D):
 	print("BerserkerWeapon: Inimigo atingido - Dano: ", current_damage)
 
 func apply_knockback(enemy: Node2D):
-	if not enemy.has_method("apply_knockback"):
-		return
-	
-	# Calcular direção do knockback
-	var player_pos = get_parent().global_position
-	var enemy_pos = enemy.global_position
-	var knockback_direction = (enemy_pos - player_pos).normalized()
-	
-	# Aplicar knockback
-	var knockback_velocity = knockback_direction * knockback_force
-	enemy.apply_knockback(knockback_velocity)
+	# Knockback já foi aplicado junto com o dano na função take_damage
+	# Esta função é mantida para compatibilidade com inimigos que não usam take_damage com knockback
+	if not enemy.has_method("take_damage") and enemy.has_method("apply_knockback"):
+		# Calcular direção do knockback
+		var player_pos = get_parent().global_position
+		var enemy_pos = enemy.global_position
+		var knockback_direction = (enemy_pos - player_pos).normalized()
+		
+		# Aplicar knockback
+		var knockback_velocity = knockback_direction * knockback_force
+		enemy.apply_knockback(knockback_velocity)
 
 func create_hit_effect(enemy: Node2D):
 	# Efeito visual de impacto no inimigo
