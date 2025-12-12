@@ -11,8 +11,8 @@ func _ready():
 	# Carregar cena de debug
 	debug_ui_scene = load("res://_Core/DebugUI.tscn")
 	
-	# Criar instância de debug
-	create_debug_ui()
+	# Criar instância de debug (deferred para evitar conflitos)
+	call_deferred("create_debug_ui")
 	
 	print("DebugManager: Sistema de debug inicializado (F3 para ativar)")
 
@@ -20,11 +20,11 @@ func create_debug_ui():
 	if debug_ui_scene and not debug_ui_instance:
 		debug_ui_instance = debug_ui_scene.instantiate()
 		
-		# Adicionar à árvore principal
-		get_tree().root.add_child(debug_ui_instance)
+		# Adicionar à árvore principal (deferred para evitar conflitos)
+		get_tree().root.call_deferred("add_child", debug_ui_instance)
 		
-		# Mover para o topo da hierarquia
-		debug_ui_instance.z_index = 1000
+		# Configurar z_index após adicionar (deferred)
+		call_deferred("setup_debug_ui_properties")
 
 func _input(event):
 	# Backup para toggle debug se a UI não capturar
@@ -48,3 +48,8 @@ func set_debug_active(active: bool):
 	if debug_ui_instance:
 		debug_ui_instance.is_visible = active
 		debug_ui_instance.visible = active
+
+func setup_debug_ui_properties():
+	if debug_ui_instance:
+		# Mover para o topo da hierarquia
+		debug_ui_instance.z_index = 1000
