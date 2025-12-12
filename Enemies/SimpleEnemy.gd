@@ -7,6 +7,7 @@ class_name SimpleEnemy
 @export var damage: float = 15.0
 @export var detection_range: float = 100.0
 @export var attack_range: float = 25.0
+@export var attack_cooldown_time: float = 1.5
 
 # Variáveis internas
 var current_health: float
@@ -14,6 +15,7 @@ var target_player: Node2D = null
 var is_poisoned: bool = false
 var poison_damage: float = 0.0
 var poison_timer: float = 0.0
+var attack_cooldown: float = 0.0
 
 # Variáveis de knockback
 var knockback_velocity: Vector2 = Vector2.ZERO
@@ -37,8 +39,10 @@ func _ready():
 func _physics_process(delta):
 	handle_poison(delta)
 	handle_knockback(delta)
+	update_attack_cooldown(delta)
 	find_target()
 	move_towards_target(delta)
+	try_attack()
 
 func find_target():
 	# Procurar o player mais próximo
@@ -168,3 +172,36 @@ func drop_xp_orb():
 	
 	# Adicionar à cena
 	get_parent().add_child(xp_orb)
+
+func update_attack_cooldown(delta):
+	if attack_cooldown > 0:
+		attack_cooldown -= delta
+
+func try_attack():
+	if not target_player or attack_cooldown > 0:
+		return
+	
+	var distance_to_target = global_position.distance_to(target_player.global_position)
+	if distance_to_target <= attack_range:
+		perform_attack()
+
+func perform_attack():
+	if not target_player or not target_player.has_method("take_damage"):
+		return
+	
+	# Calcular direção do knockback (do inimigo para o player)
+	var knockback_direction = (target_player.global_position - global_position).normalized()
+	var knockback_force = knockback_direction * 100.0  # Força do knockback no player
+	
+	# Aplicar dano ao player
+	target_player.take_damage(damage, knockback_force)
+	
+	# Efeito visual de ataque
+	modulate = Color.YELLOW
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.3)
+	
+	# Definir cooldown
+	attack_cooldown = attack_cooldown_time
+	
+	print("Inimigo atacou o player! Dano: ", damage)

@@ -5,8 +5,14 @@ class_name TestBoss
 # Não tem funcionalidade, apenas fica parado
 
 @export var max_health: float = 500.0
+@export var damage: float = 30.0
+@export var detection_range: float = 120.0
+@export var attack_range: float = 40.0
+@export var attack_cooldown_time: float = 2.5
 
 var current_health: float
+var target_player: Node2D = null
+var attack_cooldown: float = 0.0
 
 # Variáveis de knockback
 var knockback_velocity: Vector2 = Vector2.ZERO
@@ -31,6 +37,59 @@ func _ready():
 
 func _physics_process(delta):
 	handle_knockback(delta)
+	update_attack_cooldown(delta)
+	find_target()
+	try_attack()
+
+func find_target():
+	# Procurar o player mais próximo
+	var players = get_tree().get_nodes_in_group("players")
+	var nearest_player: Node2D = null
+	var nearest_distance: float = detection_range
+	
+	for player in players:
+		if not is_instance_valid(player):
+			continue
+		
+		var distance = global_position.distance_to(player.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_player = player
+	
+	target_player = nearest_player
+
+func update_attack_cooldown(delta):
+	if attack_cooldown > 0:
+		attack_cooldown -= delta
+
+func try_attack():
+	if not target_player or attack_cooldown > 0:
+		return
+	
+	var distance_to_target = global_position.distance_to(target_player.global_position)
+	if distance_to_target <= attack_range:
+		perform_attack()
+
+func perform_attack():
+	if not target_player or not target_player.has_method("take_damage"):
+		return
+	
+	# Calcular direção do knockback (do boss para o player)
+	var knockback_direction = (target_player.global_position - global_position).normalized()
+	var knockback_force = knockback_direction * 200.0  # Boss faz mais knockback
+	
+	# Aplicar dano ao player
+	target_player.take_damage(damage, knockback_force)
+	
+	# Efeito visual de ataque
+	modulate = Color.YELLOW
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.5)
+	
+	# Definir cooldown
+	attack_cooldown = attack_cooldown_time
+	
+	print("Boss atacou o player! Dano: ", damage)
 
 func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
 	current_health -= amount

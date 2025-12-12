@@ -75,5 +75,13 @@ func setup_damage(damage_amount: float, damage_type: String = "normal"):
 			add_theme_font_size_override("font_size", 14)
 			# Outline vermelho para boss
 			add_theme_color_override("font_outline_color", Color.DARK_RED)
+		"player_damage":
+			modulate = Color.RED
+			add_theme_font_size_override("font_size", 18)
+			# Outline preto mais forte para dano do player
+			add_theme_color_override("font_outline_color", Color.BLACK)
+			add_theme_constant_override("outline_size", 2)
+			# Movimento diferente para dano recebido
+			velocity = Vector2(randf_range(-30, 30), -float_speed * 1.5)
 		_:
 			modulate = Color.WHITE

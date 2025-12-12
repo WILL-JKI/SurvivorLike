@@ -300,8 +300,15 @@ func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
 	if knockback_force != Vector2.ZERO:
 		apply_knockback(knockback_force)
 	
-	# Mostrar número de dano
-	show_damage_number(amount, "normal")
+	# Efeito visual de dano no player
+	modulate = Color.RED
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.3)
+	
+	# Mostrar número de dano (vermelho para player)
+	show_damage_number(amount, "player_damage")
+	
+	print("Rat King recebeu ", amount, " de dano! Vida: ", current_health, "/", max_health)
 	
 	if current_health <= 0:
 		die()
@@ -317,7 +324,7 @@ func handle_knockback(delta):
 		# Reduzir knockback gradualmente
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_friction * delta)
 
-func show_damage_number(damage: float, damage_type: String = "normal"):
+func show_damage_number(damage: float, damage_type: String = "player_damage"):
 	# Carregar e instanciar número de dano
 	var damage_number_scene = load("res://_Core/DamageNumber.tscn")
 	var damage_number = damage_number_scene.instantiate()
