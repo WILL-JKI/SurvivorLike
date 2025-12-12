@@ -18,8 +18,23 @@ func _ready():
 	# Movimento inicial aleatório para cima
 	velocity = Vector2(randf_range(-20, 20), -float_speed)
 	
-	# Configurar fonte e tamanho
-	add_theme_font_size_override("font_size", 16)
+	# Configurar fonte pixel art
+	setup_pixel_font()
+
+func setup_pixel_font():
+	# Usar FontManager se disponível
+	if FontManager:
+		FontManager.apply_pixel_font(self, 12)
+	else:
+		# Fallback manual
+		add_theme_font_size_override("font_size", 12)
+		add_theme_color_override("font_outline_color", Color.BLACK)
+		add_theme_constant_override("outline_size", 1)
+	
+	# Configurar sombra
+	add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.5))
+	add_theme_constant_override("shadow_offset_x", 1)
+	add_theme_constant_override("shadow_offset_y", 1)
 
 func _process(delta):
 	# Atualizar posição
@@ -52,9 +67,13 @@ func setup_damage(damage_amount: float, damage_type: String = "normal"):
 			modulate = Color.GREEN
 		"critical":
 			modulate = Color.YELLOW
-			add_theme_font_size_override("font_size", 20)
+			add_theme_font_size_override("font_size", 16)
+			# Outline mais forte para críticos
+			add_theme_constant_override("outline_size", 2)
 		"boss":
 			modulate = Color.RED
-			add_theme_font_size_override("font_size", 18)
+			add_theme_font_size_override("font_size", 14)
+			# Outline vermelho para boss
+			add_theme_color_override("font_outline_color", Color.DARK_RED)
 		_:
 			modulate = Color.WHITE
