@@ -38,10 +38,13 @@ var evolution_route: String = ""  # "swarm", "beast", ou ""
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
-# Preload do minion
-@export var minion_scene: PackedScene
+# Cena do minion
+var minion_scene: PackedScene
 
 func _ready():
+	# Carregar cena do minion
+	minion_scene = load("res://Characters/RatKing/RatMinion.tscn")
+	
 	# Inicializar variáveis
 	current_health = max_health
 	
