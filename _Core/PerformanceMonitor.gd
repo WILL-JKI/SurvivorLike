@@ -28,7 +28,7 @@ func record_frame_time(delta: float):
 		frame_times.pop_front()
 
 func record_memory_usage():
-	var memory = OS.get_static_memory_usage_by_type().get("total", 0)
+	var memory = OS.get_static_memory_peak_usage()
 	memory_usage_history.append(memory)
 	
 	# Manter apenas o histórico necessário

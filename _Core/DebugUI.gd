@@ -84,7 +84,7 @@ func update_debug_info():
 	else:
 		debug_text += "FPS: " + str(Engine.get_frames_per_second()) + "\n"
 		debug_text += "Frame Time: " + str(snapped(1.0 / Engine.get_frames_per_second() * 1000, 0.1)) + "ms\n"
-		debug_text += "Memory: " + format_bytes(OS.get_static_memory_usage_by_type().get("total", 0)) + "\n"
+		debug_text += "Memory: " + format_bytes(OS.get_static_memory_peak_usage()) + "\n"
 	
 	debug_text += "Process ID: " + str(OS.get_process_id()) + "\n"
 	
