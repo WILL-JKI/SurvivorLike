@@ -39,7 +39,6 @@ var last_position: Vector2 = Vector2.ZERO
 var movement_check_timer: float = 0.0
 
 # Variáveis de câmera
-var camera: Camera2D
 var current_boss: Node2D = null
 var camera_base_zoom: Vector2 = Vector2(4.0, 4.0)  # Zoom para estética 16x16
 var camera_boss_zoom: Vector2 = Vector2(2.5, 2.5)  # Zoom menor para bosses
