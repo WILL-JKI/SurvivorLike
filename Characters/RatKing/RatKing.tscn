@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://cqm8xvw7n5ys"]
+
+[ext_resource type="Script" path="res://Characters/RatKing/RatKing.gd" id="1_1x9ys"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 12.0
+height = 32.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 16.0
+
+[node name="RatKing" type="CharacterBody2D"]
+script = ExtResource("1_1x9ys")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.2, 0.8, 1)
+scale = Vector2(32, 32)
+texture = preload("res://icon.svg")
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 2.0
+autostart = true
+
+[node name="DetectionArea" type="Area2D" parent="."]
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea"]
+shape = SubResource("CircleShape2D_1")
