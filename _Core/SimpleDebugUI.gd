@@ -17,13 +17,58 @@ func _ready():
 	# Configurar input
 	set_process_unhandled_input(true)
 	
+	# Debug detalhado da estrutura
+	print("SimpleDebugUI: === DEBUG DA ESTRUTURA ===")
+	print("Nós filhos diretos:")
+	for child in get_children():
+		print("  - ", child.name, " (", child.get_class(), ")")
+	
 	# Verificar se todos os nós foram encontrados
 	if not control:
 		print("SimpleDebugUI: ERRO - Control não encontrado!")
+		# Tentar encontrar manualmente
+		var control_node = get_node_or_null("Control")
+		if control_node:
+			print("  -> Control encontrado manualmente!")
+			control = control_node
+	else:
+		print("SimpleDebugUI: Control encontrado")
+		print("  Filhos do Control:")
+		for child in control.get_children():
+			print("    - ", child.name, " (", child.get_class(), ")")
+	
 	if not debug_panel:
 		print("SimpleDebugUI: ERRO - DebugPanel não encontrado!")
+		# Tentar encontrar manualmente
+		if control:
+			var panel_node = control.get_node_or_null("DebugPanel")
+			if panel_node:
+				print("  -> DebugPanel encontrado manualmente!")
+				debug_panel = panel_node
+	else:
+		print("SimpleDebugUI: DebugPanel encontrado")
+		print("  Filhos do DebugPanel:")
+		for child in debug_panel.get_children():
+			print("    - ", child.name, " (", child.get_class(), ")")
+			if child.name == "VBoxContainer":
+				print("      Filhos do VBoxContainer:")
+				for grandchild in child.get_children():
+					print("        - ", grandchild.name, " (", grandchild.get_class(), ")")
+	
 	if not debug_label:
 		print("SimpleDebugUI: ERRO - DebugLabel não encontrado!")
+		# Tentar encontrar manualmente
+		if debug_panel:
+			var vbox = debug_panel.get_node_or_null("VBoxContainer")
+			if vbox:
+				var label_node = vbox.get_node_or_null("DebugLabel")
+				if label_node:
+					print("  -> DebugLabel encontrado manualmente!")
+					debug_label = label_node
+				else:
+					print("  -> DebugLabel NÃO encontrado no VBoxContainer")
+			else:
+				print("  -> VBoxContainer não encontrado no DebugPanel")
 	else:
 		print("SimpleDebugUI: DebugLabel encontrado - texto inicial: ", debug_label.text)
 	
@@ -54,7 +99,22 @@ func toggle_debug():
 func update_debug_info():
 	if not debug_label:
 		print("SimpleDebugUI: ERRO - debug_label não encontrado!")
-		return
+		# Tentar encontrar novamente
+		if debug_panel:
+			var vbox = debug_panel.get_node_or_null("VBoxContainer")
+			if vbox:
+				debug_label = vbox.get_node_or_null("DebugLabel")
+				if debug_label:
+					print("SimpleDebugUI: DebugLabel encontrado na segunda tentativa!")
+				else:
+					print("SimpleDebugUI: DebugLabel ainda não encontrado")
+					return
+			else:
+				print("SimpleDebugUI: VBoxContainer não encontrado")
+				return
+		else:
+			print("SimpleDebugUI: DebugPanel não encontrado")
+			return
 	
 	print("SimpleDebugUI: Atualizando informações de debug...")
 	var debug_text = ""
