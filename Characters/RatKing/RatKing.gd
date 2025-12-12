@@ -40,6 +40,10 @@ var movement_check_timer: float = 0.0
 
 # Variáveis de câmera
 var current_boss: Node2D = null
+
+# Variáveis de knockback
+var knockback_velocity: Vector2 = Vector2.ZERO
+var knockback_friction: float = 800.0
 var camera_base_zoom: Vector2 = Vector2(1.5, 1.5)  # Zoom para estética 16x16
 var camera_boss_zoom: Vector2 = Vector2(1, 1)  # Zoom menor para bosses
 var camera_smooth_speed: float = 3.0
@@ -79,6 +83,7 @@ func _ready():
 
 func _physics_process(delta):
 	handle_movement(delta)
+	handle_knockback(delta)
 	update_movement_state(delta)
 	update_camera(delta)
 	clean_dead_minions()
@@ -96,12 +101,16 @@ func handle_movement(delta):
 	if Input.is_action_pressed("move_right"):
 		input_vector.x += 1
 	
-	# Normalizar e aplicar velocidade
+	# Normalizar e aplicar velocidade (sem sobrescrever knockback)
+	var movement_velocity = Vector2.ZERO
 	if input_vector != Vector2.ZERO:
 		input_vector = input_vector.normalized()
-		velocity = input_vector * movement_speed
-	else:
-		velocity = Vector2.ZERO
+		movement_velocity = input_vector * movement_speed
+	
+	# Combinar movimento normal com knockback
+	if knockback_velocity.length() < 10.0:  # Se knockback é pequeno, permitir movimento
+		velocity = movement_velocity
+	# Se há knockback significativo, o movimento é limitado
 	
 	# Mover o personagem
 	move_and_slide()
@@ -284,11 +293,43 @@ func apply_upgrade(upgrade_id: String):
 		_:
 			print("Upgrade desconhecido: ", upgrade_id)
 
-func take_damage(amount: float):
+func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
 	current_health -= amount
+	
+	# Aplicar knockback
+	if knockback_force != Vector2.ZERO:
+		apply_knockback(knockback_force)
+	
+	# Mostrar número de dano
+	show_damage_number(amount, "normal")
 	
 	if current_health <= 0:
 		die()
+
+func apply_knockback(force: Vector2):
+	knockback_velocity = force
+
+func handle_knockback(delta):
+	if knockback_velocity.length() > 0:
+		# Aplicar knockback à velocidade
+		velocity += knockback_velocity
+		
+		# Reduzir knockback gradualmente
+		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_friction * delta)
+
+func show_damage_number(damage: float, damage_type: String = "normal"):
+	# Carregar e instanciar número de dano
+	var damage_number_scene = load("res://_Core/DamageNumber.tscn")
+	var damage_number = damage_number_scene.instantiate()
+	
+	# Posicionar acima do player
+	damage_number.global_position = global_position + Vector2(randf_range(-20, 20), -30)
+	
+	# Configurar dano
+	damage_number.setup_damage(damage, damage_type)
+	
+	# Adicionar à cena
+	get_parent().add_child(damage_number)
 
 func die():
 	print("Rat King morreu!")

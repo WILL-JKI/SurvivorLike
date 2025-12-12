@@ -155,8 +155,24 @@ func perform_attack():
 	if not target_enemy or not target_enemy.has_method("take_damage"):
 		return
 	
-	# Aplicar dano base
-	target_enemy.take_damage(damage)
+	# Calcular direção do knockback (do minion para o inimigo)
+	var knockback_direction = (target_enemy.global_position - global_position).normalized()
+	var knockback_force = knockback_direction * 150.0  # Força do knockback
+	
+	# Aplicar dano base com knockback
+	if target_enemy.has_method("take_damage"):
+		# Verificar se aceita knockback como parâmetro
+		var method_info = target_enemy.get_method_list()
+		var has_knockback_param = false
+		for method in method_info:
+			if method.name == "take_damage" and method.args.size() > 1:
+				has_knockback_param = true
+				break
+		
+		if has_knockback_param:
+			target_enemy.take_damage(damage, knockback_force)
+		else:
+			target_enemy.take_damage(damage)
 	
 	# Aplicar efeitos especiais
 	if is_poisonous and target_enemy.has_method("apply_poison"):

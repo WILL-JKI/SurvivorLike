@@ -14,6 +14,10 @@ var is_poisoned: bool = false
 var poison_damage: float = 0.0
 var poison_timer: float = 0.0
 
+# Variáveis de knockback
+var knockback_velocity: Vector2 = Vector2.ZERO
+var knockback_friction: float = 600.0
+
 # Referências de nós
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -31,6 +35,7 @@ func _ready():
 
 func _physics_process(delta):
 	handle_poison(delta)
+	handle_knockback(delta)
 	find_target()
 	move_towards_target(delta)
 
@@ -57,18 +62,36 @@ func move_towards_target(delta):
 		move_and_slide()
 		return
 	
-	# Mover em direção ao player
-	var direction = (target_player.global_position - global_position).normalized()
-	velocity = direction * movement_speed
+	var distance_to_target = global_position.distance_to(target_player.global_position)
+	
+	# Parar de se mover se estiver no alcance de ataque
+	if distance_to_target <= attack_range:
+		velocity = Vector2.ZERO
+	else:
+		# Mover em direção ao player (considerando knockback)
+		var movement_velocity = Vector2.ZERO
+		if knockback_velocity.length() < 10.0:  # Se knockback é pequeno, permitir movimento
+			var direction = (target_player.global_position - global_position).normalized()
+			movement_velocity = direction * movement_speed
+		
+		velocity = movement_velocity
+	
 	move_and_slide()
 
-func take_damage(amount: float):
+func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
 	current_health -= amount
+	
+	# Aplicar knockback
+	if knockback_force != Vector2.ZERO:
+		apply_knockback(knockback_force)
 	
 	# Efeito visual de dano (piscar vermelho)
 	modulate = Color.RED
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.2)
+	
+	# Mostrar número de dano
+	show_damage_number(amount, "normal")
 	
 	print("Inimigo recebeu ", amount, " de dano. Vida: ", current_health)
 	
@@ -97,6 +120,31 @@ func handle_poison(delta):
 		if poison_timer <= 0:
 			is_poisoned = false
 			print("Veneno acabou")
+
+func apply_knockback(force: Vector2):
+	knockback_velocity = force
+
+func handle_knockback(delta):
+	if knockback_velocity.length() > 0:
+		# Aplicar knockback à velocidade
+		velocity += knockback_velocity
+		
+		# Reduzir knockback gradualmente
+		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_friction * delta)
+
+func show_damage_number(damage: float, damage_type: String = "normal"):
+	# Carregar e instanciar número de dano
+	var damage_number_scene = load("res://_Core/DamageNumber.tscn")
+	var damage_number = damage_number_scene.instantiate()
+	
+	# Posicionar acima do inimigo
+	damage_number.global_position = global_position + Vector2(randf_range(-15, 15), -25)
+	
+	# Configurar dano
+	damage_number.setup_damage(damage, damage_type)
+	
+	# Adicionar à cena
+	get_parent().add_child(damage_number)
 
 func die():
 	print("Inimigo morreu!")
