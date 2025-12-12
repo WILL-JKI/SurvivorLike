@@ -17,6 +17,16 @@ func _ready():
 	# Configurar input
 	set_process_unhandled_input(true)
 	
+	# Verificar se todos os nós foram encontrados
+	if not control:
+		print("SimpleDebugUI: ERRO - Control não encontrado!")
+	if not debug_panel:
+		print("SimpleDebugUI: ERRO - DebugPanel não encontrado!")
+	if not debug_label:
+		print("SimpleDebugUI: ERRO - DebugLabel não encontrado!")
+	else:
+		print("SimpleDebugUI: DebugLabel encontrado - texto inicial: ", debug_label.text)
+	
 	print("SimpleDebugUI: Pronto (ESC para ativar)")
 
 func _unhandled_input(event):
@@ -43,8 +53,10 @@ func toggle_debug():
 
 func update_debug_info():
 	if not debug_label:
+		print("SimpleDebugUI: ERRO - debug_label não encontrado!")
 		return
 	
+	print("SimpleDebugUI: Atualizando informações de debug...")
 	var debug_text = ""
 	
 	# Performance
@@ -80,6 +92,7 @@ func update_debug_info():
 	debug_text += "WASD: Move Player\n"
 	
 	debug_label.text = debug_text
+	print("SimpleDebugUI: Texto definido - comprimento: ", debug_text.length())
 
 func get_entity_counts() -> Dictionary:
 	return {

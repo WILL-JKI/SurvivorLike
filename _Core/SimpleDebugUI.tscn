@@ -15,11 +15,15 @@ mouse_filter = 2
 
 [node name="DebugPanel" type="Panel" parent="Control"]
 layout_mode = 1
-anchors_preset = 1
+anchors_preset = 3
 anchor_left = 1.0
+anchor_top = 0.0
 anchor_right = 1.0
-offset_left = -300.0
-offset_bottom = 500.0
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
 modulate = Color(0, 0, 0, 0.8)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="DebugPanel"]
@@ -38,3 +42,5 @@ size_flags_vertical = 3
 bbcode_enabled = true
 text = "Debug Info..."
 fit_content = true
+scroll_active = false
+selection_enabled = false
