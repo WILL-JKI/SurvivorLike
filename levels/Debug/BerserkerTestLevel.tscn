@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dlkisc7bn1cuv" path="res://Characters/Berserker/BerserkerPlayer.tscn" id="1_4d5e6"]
 [ext_resource type="PackedScene" uid="uid://bqxgkqnf0tr" path="res://Enemies/SimpleEnemy.tscn" id="2_5e6f7"]
-[ext_resource type="Script" uid="uid://b17r4ec51pmr4" path="res://_Core/EnemySpawner.gd" id="3_6f7g8"]
+[ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="3_6f7g8"]
 
 [node name="BerserkerTestLevel" type="Node2D"]
 
