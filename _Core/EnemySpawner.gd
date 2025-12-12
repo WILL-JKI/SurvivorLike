@@ -5,9 +5,9 @@ class_name EnemySpawner
 
 @export var spawn_distance_min: float = 200.0
 @export var spawn_distance_max: float = 300.0
-@export var spawn_rate: float = 3.0  # Segundos entre spawns
+@export var spawn_rate: float = 5.0  # Segundos entre spawns
 @export var max_enemies: int = 50
-@export var enemies_per_spawn: int = 1
+@export var enemies_per_spawn: int = 10
 
 # Cenas de inimigos disponíveis
 @export var enemy_scenes: Array[PackedScene] = []
