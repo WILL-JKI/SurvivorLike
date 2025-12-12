@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://character_selection"]
+[gd_scene load_steps=3 format=3 uid="uid://ofw5i16clo1c"]
 
-[ext_resource type="Script" path="res://UI/CharacterSelect.gd" id="1"]
+[ext_resource type="Script" uid="uid://bbfuicwyullfx" path="res://UI/CharacterSelect.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://bo81ugt0qja6s" path="res://icon.svg" id="2"]
 
 [node name="CharacterSelection" type="Control"]
@@ -8,13 +8,18 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1")
 
 [node name="Background" type="TextureRect" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 1
@@ -28,6 +33,8 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="LeftColumn" type="VBoxContainer" parent="MainLayout"]
 layout_mode = 2
@@ -41,8 +48,8 @@ text = "CHOOSE YOUR FIGHTER"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="MainLayout/LeftColumn"]
-layout_mode = 2
 custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="MainLayout/LeftColumn"]
 layout_mode = 2
@@ -64,19 +71,19 @@ text = "Selecione um Personagem"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
 [node name="BigPortrait" type="TextureRect" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
 texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Spacer2" type="Control" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
 [node name="Description" type="RichTextLabel" parent="MainLayout/RightInfoPanel/VBoxContainer"]
 layout_mode = 2
@@ -87,8 +94,8 @@ fit_content = true
 scroll_active = false
 
 [node name="Spacer3" type="Control" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
 [node name="Stats" type="VBoxContainer" parent="MainLayout/RightInfoPanel/VBoxContainer"]
 layout_mode = 2
@@ -100,8 +107,8 @@ text = "STATS"
 horizontal_alignment = 1
 
 [node name="StatsText" type="RichTextLabel" parent="MainLayout/RightInfoPanel/VBoxContainer/Stats"]
-layout_mode = 2
 custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
 bbcode_enabled = true
 text = "Health: --
 Speed: --
@@ -111,11 +118,11 @@ fit_content = true
 scroll_active = false
 
 [node name="Spacer4" type="Control" parent="MainLayout/RightInfoPanel/VBoxContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
 
 [node name="StartButton" type="Button" parent="MainLayout/RightInfoPanel/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "START GAME"
 disabled = true
+text = "START GAME"

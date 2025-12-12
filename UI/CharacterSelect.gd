@@ -19,6 +19,12 @@ var character_buttons: Array[TextureButton] = []
 func _ready():
 	print("CharacterSelect: Inicializando tela de seleção")
 	
+	# Aguardar um frame para garantir que todos os nós estejam prontos
+	await get_tree().process_frame
+	
+	# Aplicar UiFont aos elementos do painel
+	apply_ui_fonts()
+	
 	# Configurar grid
 	character_grid.columns = 3  # 3 colunas para os personagens
 	
@@ -35,7 +41,18 @@ func _ready():
 	
 	# Selecionar primeiro personagem por padrão
 	if available_characters.size() > 0:
-		select_character(available_characters[0])
+		call_deferred("select_character", available_characters[0])
+
+func apply_ui_fonts():
+	# Aplicar UiFont aos elementos do painel direito
+	if FontManager:
+		FontManager.apply_ui_font(character_name_label, 24)
+		FontManager.apply_ui_font(description_label, 14)
+		FontManager.apply_ui_font(stats_label, 12)
+		FontManager.apply_ui_font(start_button, 20)
+		print("CharacterSelect: UiFont aplicada aos elementos")
+	else:
+		print("CharacterSelect: FontManager não encontrado")
 
 func create_default_characters():
 	# Criar recursos padrão dos personagens
@@ -103,9 +120,13 @@ func populate_character_grid():
 	# Criar botão para cada personagem
 	for i in range(available_characters.size()):
 		var character = available_characters[i]
+		print("CharacterSelect: Criando botão para ", character.character_name)
 		var button = create_character_button(character, i)
 		character_grid.add_child(button)
 		character_buttons.append(button)
+		print("CharacterSelect: Botão adicionado ao grid")
+	
+	print("CharacterSelect: Grid populado com %d botões" % character_buttons.size())
 
 func create_character_button(character: CharacterResource, index: int) -> TextureButton:
 	var button = TextureButton.new()
@@ -115,37 +136,11 @@ func create_character_button(character: CharacterResource, index: int) -> Textur
 	button.custom_minimum_size = Vector2(120, 120)
 	button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	
-	# Configurar estilo (borda de foco estilo Smash Bros)
-	var style_normal = StyleBoxFlat.new()
-	style_normal.bg_color = Color.TRANSPARENT
-	style_normal.border_width_left = 2
-	style_normal.border_width_right = 2
-	style_normal.border_width_top = 2
-	style_normal.border_width_bottom = 2
-	style_normal.border_color = Color.GRAY
+	# Estilo simples para evitar problemas
+	button.modulate = Color.WHITE
 	
-	var style_hover = StyleBoxFlat.new()
-	style_hover.bg_color = Color(1, 1, 1, 0.1)
-	style_hover.border_width_left = 3
-	style_hover.border_width_right = 3
-	style_hover.border_width_top = 3
-	style_hover.border_width_bottom = 3
-	style_hover.border_color = Color.YELLOW
-	
-	var style_pressed = StyleBoxFlat.new()
-	style_pressed.bg_color = Color(1, 1, 0, 0.2)
-	style_pressed.border_width_left = 4
-	style_pressed.border_width_right = 4
-	style_pressed.border_width_top = 4
-	style_pressed.border_width_bottom = 4
-	style_pressed.border_color = Color.ORANGE
-	
-	button.add_theme_stylebox_override("normal", style_normal)
-	button.add_theme_stylebox_override("hover", style_hover)
-	button.add_theme_stylebox_override("pressed", style_pressed)
-	button.add_theme_stylebox_override("focus", style_hover)
-	
-	# Conectar sinais
+	# Conectar sinais com logs
+	print("CharacterSelect: Conectando sinais para ", character.character_name)
 	button.pressed.connect(_on_character_button_pressed.bind(character))
 	button.mouse_entered.connect(_on_character_button_hover.bind(character))
 	button.focus_entered.connect(_on_character_button_hover.bind(character))
@@ -153,48 +148,54 @@ func create_character_button(character: CharacterResource, index: int) -> Textur
 	# Tooltip
 	button.tooltip_text = character.character_name
 	
+	# Adicionar um Label como filho para mostrar o nome
+	var label = Label.new()
+	label.text = character.character_name
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	label.anchors_preset = Control.PRESET_BOTTOM_WIDE
+	label.offset_top = -20
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	button.add_child(label)
+	
+	print("CharacterSelect: Botão criado para ", character.character_name)
 	return button
 
 func _on_character_button_pressed(character: CharacterResource):
+	print("CharacterSelect: Botão pressionado - ", character.character_name)
 	select_character(character)
-	print("CharacterSelect: Personagem selecionado - ", character.character_name)
 
 func _on_character_button_hover(character: CharacterResource):
+	print("CharacterSelect: Hover sobre - ", character.character_name)
 	update_info_panel(character)
 
 func select_character(character: CharacterResource):
+	print("CharacterSelect: Selecionando personagem - ", character.character_name)
 	current_character = character
 	update_info_panel(character)
 	start_button.disabled = false
 	
 	# Atualizar estilo dos botões para mostrar seleção
 	update_button_selection()
+	
+	print("CharacterSelect: Personagem selecionado com sucesso!")
 
 func update_button_selection():
+	print("CharacterSelect: Atualizando seleção visual")
 	for i in range(character_buttons.size()):
 		var button = character_buttons[i]
 		var character = available_characters[i]
 		
 		if character == current_character:
-			# Estilo de selecionado
-			var style_selected = StyleBoxFlat.new()
-			style_selected.bg_color = Color(0, 1, 0, 0.3)
-			style_selected.border_width_left = 4
-			style_selected.border_width_right = 4
-			style_selected.border_width_top = 4
-			style_selected.border_width_bottom = 4
-			style_selected.border_color = Color.GREEN
-			button.add_theme_stylebox_override("normal", style_selected)
+			# Selecionado - modulate verde
+			button.modulate = Color.GREEN
+			print("CharacterSelect: Botão ", character.character_name, " marcado como selecionado")
 		else:
-			# Estilo normal
-			var style_normal = StyleBoxFlat.new()
-			style_normal.bg_color = Color.TRANSPARENT
-			style_normal.border_width_left = 2
-			style_normal.border_width_right = 2
-			style_normal.border_width_top = 2
-			style_normal.border_width_bottom = 2
-			style_normal.border_color = Color.GRAY
-			button.add_theme_stylebox_override("normal", style_normal)
+			# Normal - modulate branco
+			button.modulate = Color.WHITE
 
 func update_info_panel(character: CharacterResource):
 	if not character:
