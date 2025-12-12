@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://berserker_player"]
+
+[ext_resource type="Script" path="res://Characters/Berserker/BerserkerPlayer.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://berserker_weapon" path="res://Characters/Berserker/BerserkerWeapon.tscn" id="2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2"]
+radius = 100.0
+
+[node name="BerserkerPlayer" type="CharacterBody2D"]
+script = ExtResource("1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 0.7, 0.7, 1)
+scale = Vector2(16, 16)
+texture = preload("res://icon.svg")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+
+[node name="BerserkerWeapon" parent="." instance=ExtResource("2")]
+
+[node name="FuryDetector" type="Area2D" parent="."]
+
+[node name="FuryDetector/CollisionShape2D" type="CollisionShape2D" parent="FuryDetector"]
+modulate = Color(1, 0, 0, 0.2)
+shape = SubResource("CircleShape2D_2")
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.5, 1.5)
