@@ -73,7 +73,7 @@ func _ready():
 func setup_fury_detector():
 	# Configurar área de detecção de fúria
 	fury_detector.collision_layer = 0
-	fury_detector.collision_mask = 2  # Detecta inimigos (layer 2)
+	fury_detector.collision_mask = 4  # Detecta inimigos (layer 4)
 	
 	# Conectar sinais
 	fury_detector.area_entered.connect(_on_fury_area_entered)
@@ -328,5 +328,8 @@ func get_player_info() -> Dictionary:
 		"experience": current_experience,
 		"exp_to_next": experience_to_next_level,
 		"evolution_route": evolution_route,
-		"enemies_in_fury": enemies_in_fury_range
+		"enemies_in_fury": enemies_in_fury_range,
+		"player_type": "Berserker",
+		"base_damage": base_damage,
+		"vampirism_chance": vampirism_chance
 	}

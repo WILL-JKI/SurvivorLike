@@ -111,7 +111,11 @@ func update_debug_info():
 		debug_text += "Level: " + str(player_info.level) + "\n"
 		debug_text += "Health: " + str(int(player_info.health)) + "/" + str(int(player_info.max_health)) + "\n"
 		debug_text += "XP: " + str(player_info.experience) + "/" + str(player_info.exp_to_next) + "\n"
-		debug_text += "Active Minions: " + str(player_info.active_minions) + "/" + str(player_info.max_minions) + "\n"
+		# Informações específicas por tipo de player
+		if player_info.has("active_minions") and player_info.has("max_minions"):
+			debug_text += "Active Minions: " + str(player_info.active_minions) + "/" + str(player_info.max_minions) + "\n"
+		elif player_info.has("enemies_in_fury"):
+			debug_text += "Enemies in Fury Range: " + str(player_info.enemies_in_fury) + "\n"
 		debug_text += "Evolution: " + str(player_info.evolution_route if player_info.evolution_route != "" else "None") + "\n"
 		debug_text += "\n"
 	
