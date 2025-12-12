@@ -8,29 +8,46 @@ var debug_ui_scene: PackedScene
 var debug_ui_instance: DebugUI = null
 
 func _ready():
+	print("DebugManager: Iniciando...")
+	
+	# Aguardar um frame para garantir que tudo está inicializado
+	await get_tree().process_frame
+	
 	# Carregar cena de debug
 	debug_ui_scene = load("res://_Core/DebugUI.tscn")
 	
-	# Criar instância de debug (deferred para evitar conflitos)
-	call_deferred("create_debug_ui")
-	
-	print("DebugManager: Sistema de debug inicializado (F3 para ativar)")
+	if debug_ui_scene:
+		print("DebugManager: Cena carregada com sucesso")
+		create_debug_ui()
+	else:
+		print("DebugManager: ERRO - Falha ao carregar cena de debug")
 
 func create_debug_ui():
-	if debug_ui_scene and not debug_ui_instance:
+	if not debug_ui_instance:
 		debug_ui_instance = debug_ui_scene.instantiate()
+		print("DebugManager: Debug UI instanciada")
 		
-		# Adicionar à árvore principal (deferred para evitar conflitos)
-		get_tree().root.call_deferred("add_child", debug_ui_instance)
+		# Adicionar diretamente à árvore principal
+		get_tree().root.add_child(debug_ui_instance)
 		
-		# Configurar z_index após adicionar (deferred)
-		call_deferred("setup_debug_ui_properties")
+		# Configurar propriedades
+		debug_ui_instance.z_index = 1000
+		debug_ui_instance.visible = false
+		
+		print("DebugManager: Debug UI adicionada à árvore e configurada")
+		print("DebugManager: Sistema de debug pronto (F3 para ativar)")
+	else:
+		print("DebugManager: Debug UI já existe")
 
 func _input(event):
 	# Backup para toggle debug se a UI não capturar
 	if event.is_action_pressed("dv_debug"):
+		print("DebugManager: F3 pressionado")
 		if debug_ui_instance:
+			print("DebugManager: Chamando toggle_debug()")
 			debug_ui_instance.toggle_debug()
+		else:
+			print("DebugManager: ERRO - Debug UI não existe!")
 
 # Função para adicionar informações customizadas ao debug
 func add_debug_info(title: String, info: String):
@@ -48,8 +65,3 @@ func set_debug_active(active: bool):
 	if debug_ui_instance:
 		debug_ui_instance.is_visible = active
 		debug_ui_instance.visible = active
-
-func setup_debug_ui_properties():
-	if debug_ui_instance:
-		# Mover para o topo da hierarquia
-		debug_ui_instance.z_index = 1000
