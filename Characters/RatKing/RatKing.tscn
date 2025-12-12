@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cqm8xvw7n5ys"]
 
-[ext_resource type="Script" path="res://Characters/RatKing/RatKing.gd" id="1_1x9ys"]
+[ext_resource type="Script" uid="uid://c4cvytjwmctdv" path="res://Characters/RatKing/RatKing.gd" id="1_1x9ys"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 12.0

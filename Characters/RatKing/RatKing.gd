@@ -118,10 +118,16 @@ func spawn_minion():
 	active_minions.append(minion)
 
 func configure_minion(minion: RatMinion):
+	# Definir referência ao Rat King
+	minion.rat_king = self
+	
 	# Aplicar stats base
 	minion.speed = minion_speed
 	minion.damage = minion_damage
 	minion.lifetime = minion_lifetime
+	
+	# Configurar formação única para cada minion
+	minion.setup_formation_position()
 	
 	# Aplicar efeitos especiais baseados em chance
 	if minions_apply_poison and randf() < poison_chance:

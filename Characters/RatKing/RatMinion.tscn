@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b8j7xqvw2n4ys"]
 
-[ext_resource type="Script" path="res://Characters/RatKing/RatMinion.gd" id="1_0x8ys"]
+[ext_resource type="Script" uid="uid://c2epu30vsm5ql" path="res://Characters/RatKing/RatMinion.gd" id="1_0x8ys"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 8.0
@@ -10,6 +10,7 @@ script = ExtResource("1_0x8ys")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_1")
+debug_color = Color(0.7357518, 0.22694626, 1, 0.41960785)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.6, 0.4, 0.2, 1)
