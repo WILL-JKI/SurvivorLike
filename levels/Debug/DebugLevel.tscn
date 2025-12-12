@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://dm2qnevx7np8i"]
+
+[ext_resource type="PackedScene" uid="uid://cqm8xvw7n5ys" path="res://Characters/RatKing/RatKing.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://Enemies/TestBoss.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://b0l34p3bq1h60" path="res://levels/Debug/debug.tscn" id="3_72vkr"]
+[ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="4"]
+[ext_resource type="PackedScene" uid="uid://simple_debug_ui" path="res://_Core/SimpleDebugUI.tscn" id="5"]
+
+[node name="DebugLevel" type="Node2D"]
+
+[node name="Debug" parent="." instance=ExtResource("3_72vkr")]
+modulate = Color(0, 4.8485785, 10.034221, 1)
+rotation = 0.05235988
+scale = Vector2(2, 2)
+
+[node name="RatKing" parent="." instance=ExtResource("1")]
+position = Vector2(400, 300)
+
+[node name="TestBoss" parent="." instance=ExtResource("2")]
+position = Vector2(600, 200)
+
+[node name="EnemySpawner" type="Node2D" parent="."]
+script = ExtResource("4")
+spawn_distance_min = 150.0
+spawn_distance_max = 250.0
+spawn_rate = 2.0
+max_enemies = 20
+
+[node name="SimpleDebugUI" parent="." instance=ExtResource("5")]
