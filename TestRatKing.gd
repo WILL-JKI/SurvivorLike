@@ -21,6 +21,7 @@ func _ready():
 	print("Ratos seguirão você e atacarão inimigos vermelhos")
 	print("Pressione ENTER para ganhar experiência")
 	print("Pressione ESPAÇO para spawnar mais inimigos")
+	print("Pressione ESC para spawnar um boss (teste de câmera)")
 
 func _input(event):
 	if event.is_action_pressed("ui_accept"):
@@ -32,6 +33,10 @@ func _input(event):
 	if event.is_action_pressed("ui_select"):  # Espaço
 		print("Spawnando mais inimigos...")
 		spawn_test_enemies()
+	
+	if Input.is_action_just_pressed("ui_cancel"):  # ESC
+		print("Spawnando boss...")
+		spawn_boss()
 
 func spawn_test_enemies():
 	var enemy_scene = load("res://Enemies/SimpleEnemy.tscn")
@@ -50,3 +55,17 @@ func spawn_test_enemies():
 		add_child(enemy)
 	
 	print("Spawnados ", enemy_count, " inimigos!")
+
+func spawn_boss():
+	var boss_scene = load("res://Enemies/SimpleBoss.tscn")
+	var boss = boss_scene.instantiate()
+	
+	# Posição do boss (longe do player)
+	var angle = randf() * TAU
+	var distance = 300
+	var spawn_pos = Vector2(400, 300) + Vector2(cos(angle), sin(angle)) * distance
+	
+	boss.global_position = spawn_pos
+	add_child(boss)
+	
+	print("Boss spawnado! A câmera deve se ajustar automaticamente.")

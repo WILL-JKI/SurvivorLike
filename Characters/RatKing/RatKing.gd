@@ -38,10 +38,20 @@ var is_moving: bool = false
 var last_position: Vector2 = Vector2.ZERO
 var movement_check_timer: float = 0.0
 
+# Variáveis de câmera
+var camera: Camera2D
+var current_boss: Node2D = null
+var camera_base_zoom: Vector2 = Vector2(4.0, 4.0)  # Zoom para estética 16x16
+var camera_boss_zoom: Vector2 = Vector2(2.5, 2.5)  # Zoom menor para bosses
+var camera_smooth_speed: float = 3.0
+var boss_camera_offset_strength: float = 0.25  # 25% em direção ao boss
+var boss_detection_range: float = 400.0  # Distância para detectar boss
+
 # Referências de nós
 @onready var spawn_timer: Timer = $SpawnTimer
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var camera: Camera2D = $Camera2D
 
 # Cena do minion
 var minion_scene: PackedScene
@@ -64,10 +74,14 @@ func _ready():
 	# Configurar collision
 	collision_layer = 1  # Layer do player
 	collision_mask = 0   # Player não colide com nada por padrão
+	
+	# Configurar câmera
+	setup_camera()
 
 func _physics_process(delta):
 	handle_movement(delta)
 	update_movement_state(delta)
+	update_camera(delta)
 	clean_dead_minions()
 
 func handle_movement(delta):
@@ -293,3 +307,88 @@ func get_player_info() -> Dictionary:
 		"max_minions": max_minions,
 		"evolution_route": evolution_route
 	}
+
+# Sistema de Câmera
+func setup_camera():
+	if not camera:
+		return
+	
+	# Configurar zoom base para estética pixel art
+	camera.zoom = camera_base_zoom
+	camera.position_smoothing_enabled = true
+	camera.position_smoothing_speed = camera_smooth_speed
+	
+	# Configurar para pixel perfect
+	camera.snap_to_pixel = true
+	
+	print("Câmera configurada - Zoom: ", camera_base_zoom)
+
+func update_camera(delta):
+	if not camera:
+		return
+	
+	# Detectar boss próximo
+	var nearest_boss = find_nearest_boss()
+	
+	if nearest_boss != current_boss:
+		current_boss = nearest_boss
+		print("Boss detectado: ", current_boss != null)
+	
+	# Atualizar posição e zoom da câmera
+	if current_boss:
+		update_camera_with_boss(delta)
+	else:
+		update_camera_normal(delta)
+
+func find_nearest_boss() -> Node2D:
+	var bosses = get_tree().get_nodes_in_group("boss")
+	var nearest_boss: Node2D = null
+	var nearest_distance: float = boss_detection_range
+	
+	for boss in bosses:
+		if not is_instance_valid(boss):
+			continue
+		
+		var distance = global_position.distance_to(boss.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_boss = boss
+	
+	return nearest_boss
+
+func update_camera_with_boss(delta):
+	if not current_boss:
+		return
+	
+	# Calcular posição entre player e boss (mais próximo do player)
+	var player_pos = global_position
+	var boss_pos = current_boss.global_position
+	
+	# Offset em direção ao boss, mas mantendo foco no player
+	var direction_to_boss = (boss_pos - player_pos).normalized()
+	var offset_distance = player_pos.distance_to(boss_pos) * boss_camera_offset_strength
+	var target_position = player_pos + (direction_to_boss * offset_distance)
+	
+	# Suavizar transição da câmera
+	camera.global_position = camera.global_position.lerp(target_position, camera_smooth_speed * delta)
+	
+	# Ajustar zoom para mostrar mais área
+	var target_zoom = camera_boss_zoom
+	camera.zoom = camera.zoom.lerp(target_zoom, camera_smooth_speed * delta)
+	
+	# Verificar se boss saiu da tela (aproximadamente)
+	var screen_size = get_viewport().get_visible_rect().size / camera.zoom
+	var camera_to_boss = boss_pos - camera.global_position
+	
+	if abs(camera_to_boss.x) > screen_size.x * 0.6 or abs(camera_to_boss.y) > screen_size.y * 0.6:
+		# Boss muito longe, voltar para câmera normal
+		current_boss = null
+
+func update_camera_normal(delta):
+	# Câmera centralizada no player
+	var target_position = global_position
+	camera.global_position = camera.global_position.lerp(target_position, camera_smooth_speed * delta)
+	
+	# Zoom normal
+	var target_zoom = camera_base_zoom
+	camera.zoom = camera.zoom.lerp(target_zoom, camera_smooth_speed * delta)
