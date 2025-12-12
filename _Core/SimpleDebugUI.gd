@@ -57,7 +57,6 @@ func _ready():
 		var ui_font = load("res://Assets/Fonts/UIFont.ttf")
 		debug_label.add_theme_font_override("normal_font", ui_font)
 		debug_label.add_theme_font_size_override("normal_font_size", 14)
-		debug_label.add_theme_color_override("default_color", Color.WHITE)
 		print("SimpleDebugUI: UiFont aplicada diretamente")
 	else:
 		print("SimpleDebugUI: UIFont.ttf não encontrada")
@@ -65,13 +64,15 @@ func _ready():
 		if FontManager and FontManager.ui_font:
 			debug_label.add_theme_font_override("normal_font", FontManager.ui_font)
 			debug_label.add_theme_font_size_override("normal_font_size", 14)
-			debug_label.add_theme_color_override("default_color", Color.WHITE)
 			print("SimpleDebugUI: Fonte UI aplicada via FontManager")
 		else:
 			print("SimpleDebugUI: Nenhuma fonte UI disponível")
 	
-	# Garantir cor branca mesmo sem fonte personalizada
+	# Configurar cores para RichTextLabel (múltiplas propriedades)
 	debug_label.add_theme_color_override("default_color", Color.WHITE)
+	debug_label.add_theme_color_override("font_color", Color.WHITE)
+	debug_label.modulate = Color.WHITE
+	print("SimpleDebugUI: Cor branca aplicada")
 	
 	print("SimpleDebugUI: Inicialização completa (ESC para ativar)")
 
