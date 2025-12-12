@@ -1,22 +1,23 @@
-extends Control
-# UI de Debug simples que pode ser adicionada a qualquer cena
+extends CanvasLayer
+# UI de Debug simples que fica fixa na tela
 
 @export var update_interval: float = 0.5
 var is_debug_visible: bool = false
 var update_timer: float = 0.0
 
-@onready var debug_panel: Panel = $DebugPanel
-@onready var debug_label: RichTextLabel = $DebugPanel/VBoxContainer/DebugLabel
+@onready var control: Control = $Control
+@onready var debug_panel: Panel = $Control/DebugPanel
+@onready var debug_label: RichTextLabel = $Control/DebugPanel/VBoxContainer/DebugLabel
 
 func _ready():
 	# Configurar UI
-	visible = false
-	z_index = 1000
+	control.visible = false
+	layer = 100  # CanvasLayer alto para ficar na frente
 	
 	# Configurar input
 	set_process_unhandled_input(true)
 	
-	print("SimpleDebugUI: Pronto (F3 para ativar)")
+	print("SimpleDebugUI: Pronto (ESC para ativar)")
 
 func _unhandled_input(event):
 	if Input.is_action_just_pressed("ui_cancel"):  # ESC como alternativa
@@ -32,7 +33,7 @@ func _process(delta):
 
 func toggle_debug():
 	is_debug_visible = not is_debug_visible
-	visible = is_debug_visible
+	control.visible = is_debug_visible
 	
 	if is_debug_visible:
 		update_debug_info()
