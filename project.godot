@@ -13,3 +13,10 @@ config_version=5
 config/name="survivorlike"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[input]
+
+move_up={
+"deadzone": 0.2,
+"events": []
+}

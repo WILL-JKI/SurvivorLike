@@ -7,7 +7,7 @@ class_name UpgradeManager
 signal upgrade_selected(upgrade_id: String)
 
 # Referência ao player
-var rat_king: RatKing
+var rat_king
 
 # Pool de upgrades disponíveis
 var upgrade_pool: Dictionary = {}
@@ -171,7 +171,7 @@ func get_available_upgrades(player_level: int, evolution_route: String, count: i
 	available.shuffle()
 	return available.slice(0, min(count, available.size()))
 
-func apply_upgrade_to_player(upgrade_id: String, player: RatKing):
+func apply_upgrade_to_player(upgrade_id: String, player):
 	if player:
 		player.apply_upgrade(upgrade_id)
 		upgrade_selected.emit(upgrade_id)

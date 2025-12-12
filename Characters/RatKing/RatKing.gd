@@ -2,7 +2,7 @@ extends CharacterBody2D
 class_name RatKing
 
 # Sinais
-signal level_up(new_level: int)
+signal level_changed(new_level: int)
 signal evolution_available(evolution_type: String)
 
 # Variáveis de status base
@@ -39,7 +39,7 @@ var evolution_route: String = ""  # "swarm", "beast", ou ""
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 # Preload do minion
-const MINION_SCENE = preload("res://Characters/RatKing/RatMinion.tscn")
+@export var minion_scene: PackedScene
 
 func _ready():
 	# Inicializar variáveis
@@ -93,12 +93,12 @@ func _on_spawn_timer_timeout():
 			break
 
 func spawn_minion():
-	if not MINION_SCENE:
+	if not minion_scene:
 		print("Erro: Cena do minion não encontrada!")
 		return
 	
 	# Instanciar o minion
-	var minion = MINION_SCENE.instantiate() as RatMinion
+	var minion = minion_scene.instantiate() as RatMinion
 	if not minion:
 		print("Erro: Falha ao instanciar minion!")
 		return
@@ -142,7 +142,7 @@ func gain_experience(amount: int):
 
 func level_up():
 	current_level += 1
-	level_up.emit(current_level)
+	level_changed.emit(current_level)
 	
 	# Verificar evoluções especiais
 	if current_level == 10:

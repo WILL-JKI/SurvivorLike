@@ -11,14 +11,14 @@ radius = 16.0
 
 [node name="RatKing" type="CharacterBody2D"]
 script = ExtResource("1_1x9ys")
+minion_scene = preload("res://Characters/RatKing/RatMinion.tscn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.8, 0.2, 0.8, 1)
-scale = Vector2(32, 32)
-texture = preload("res://icon.svg")
+scale = Vector2(0.5, 0.5)
 
 [node name="SpawnTimer" type="Timer" parent="."]
 wait_time = 2.0

@@ -3,7 +3,7 @@ extends Node
 
 # Este script demonstra como integrar o Rat King com o sistema de jogo
 
-var rat_king: RatKing
+var rat_king
 var upgrade_manager: UpgradeManager
 
 func _ready():
@@ -11,7 +11,7 @@ func _ready():
 
 func setup_rat_king_system():
 	# Instanciar o Rat King
-	var rat_king_scene = preload("res://Characters/RatKing/RatKing.tscn")
+	var rat_king_scene = load("res://Characters/RatKing/RatKing.tscn")
 	rat_king = rat_king_scene.instantiate()
 	add_child(rat_king)
 	
@@ -23,7 +23,7 @@ func setup_rat_king_system():
 	add_child(upgrade_manager)
 	
 	# Conectar sinais
-	rat_king.level_up.connect(_on_rat_king_level_up)
+	rat_king.level_changed.connect(_on_rat_king_level_up)
 	rat_king.evolution_available.connect(_on_evolution_available)
 	upgrade_manager.upgrade_selected.connect(_on_upgrade_selected)
 	
