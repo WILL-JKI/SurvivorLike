@@ -44,6 +44,7 @@ grow_vertical = 2
 [node name="DebugLabel" type="RichTextLabel" parent="Control/DebugPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_colors/default_color = Color(1, 1, 1, 1)
 bbcode_enabled = true
 text = "Debug Info..."
 fit_content = true
