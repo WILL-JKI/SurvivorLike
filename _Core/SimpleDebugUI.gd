@@ -52,6 +52,13 @@ func _ready():
 	control.visible = false
 	debug_label.text = "Debug UI Pronta!"
 	
+	# Aplicar fonte UI
+	if FontManager:
+		FontManager.apply_ui_font(debug_label, 12)
+		print("SimpleDebugUI: Fonte UI aplicada")
+	else:
+		print("SimpleDebugUI: FontManager não encontrado")
+	
 	print("SimpleDebugUI: Inicialização completa (ESC para ativar)")
 
 func _unhandled_input(event):
