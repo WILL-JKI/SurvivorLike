@@ -7,7 +7,7 @@ class_name XPOrb
 @export var collection_distance: float = 30.0
 @export var attraction_distance: float = 80.0
 @export var attraction_speed: float = 200.0
-@export var merge_distance: float = 20.0  # Distância para combinar orbs
+@export var merge_distance: float = 40.0  # Distância para combinar orbs (otimizada)
 
 var target_player: Node2D = null
 var is_being_attracted: bool = false
@@ -29,8 +29,8 @@ func _ready():
 	# Efeito visual inicial
 	create_spawn_effect()
 	
-	# Iniciar timer de verificação de merge
-	merge_check_timer = randf_range(1.0, 3.0)  # Delay aleatório para evitar todos checarem ao mesmo tempo
+	# Iniciar timer de verificação de merge (mais frequente)
+	merge_check_timer = randf_range(0.5, 1.5)  # Delay aleatório menor para merge mais rápido
 
 func _physics_process(delta):
 	find_nearest_player()
@@ -54,10 +54,10 @@ func find_nearest_player():
 	target_player = nearest_player
 
 func handle_merge_check(delta):
-	# Verificar merge com outras orbs periodicamente
+	# Verificar merge com outras orbs periodicamente (mais frequente)
 	merge_check_timer -= delta
 	if merge_check_timer <= 0:
-		merge_check_timer = 2.0  # Verificar a cada 2 segundos
+		merge_check_timer = 1.0  # Verificar a cada 1 segundo (mais rápido)
 		check_for_merge()
 
 func handle_attraction(delta):
