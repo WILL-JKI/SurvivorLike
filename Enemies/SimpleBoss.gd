@@ -134,6 +134,12 @@ func take_damage(amount: float):
 	if current_health <= 0:
 		die()
 
+func apply_knockback(knockback_force: Vector2):
+	# Aplicar knockback ao boss (bosses são mais resistentes)
+	var reduced_knockback = knockback_force * 0.3  # Bosses recebem menos knockback
+	velocity += reduced_knockback
+	print("Boss recebeu knockback reduzido: ", reduced_knockback)
+
 func apply_poison(damage: float, duration: float):
 	is_poisoned = true
 	poison_damage = damage

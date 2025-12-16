@@ -345,7 +345,21 @@ func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO, attacke
 	var thorns_damage = GameManager.get_stat("thorns_damage")
 	if thorns_damage > 0.0 and attacker and attacker.has_method("take_damage"):
 		var thorns_final_damage = thorns_damage * amount  # Porcentagem do dano recebido
-		attacker.take_damage(thorns_final_damage)
+		
+		# Verificar assinatura do take_damage do atacante
+		var method_info = attacker.get_method_list()
+		var has_knockback_param = false
+		for method in method_info:
+			if method.name == "take_damage" and method.args.size() > 1:
+				has_knockback_param = true
+				break
+		
+		# Aplicar dano de espinhos (sem knockback)
+		if has_knockback_param:
+			attacker.take_damage(thorns_final_damage, Vector2.ZERO)
+		else:
+			attacker.take_damage(thorns_final_damage)
+		
 		print("IceLordPlayer: Dano de espinhos aplicado: %.1f" % thorns_final_damage)
 	
 	# Efeito visual de dano

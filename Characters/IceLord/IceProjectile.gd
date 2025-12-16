@@ -81,10 +81,29 @@ func hit_enemy(enemy: Node2D):
 		enemy.apply_frost(frost_stacks)
 		print("IceProjectile: Aplicando %d frost stacks em %s" % [frost_stacks, enemy.name])
 	
-	# Aplicar dano e knockback
+	# Aplicar dano (compatível com diferentes assinaturas)
 	if enemy.has_method("take_damage"):
 		var knockback_vector = direction * knockback_force
-		enemy.take_damage(damage, knockback_vector)
+		
+		# Verificar se take_damage aceita parâmetro de knockback
+		var method_info = enemy.get_method_list()
+		var has_knockback_param = false
+		for method in method_info:
+			if method.name == "take_damage" and method.args.size() > 1:
+				has_knockback_param = true
+				break
+		
+		# Chamar take_damage com a assinatura correta
+		if has_knockback_param:
+			enemy.take_damage(damage, knockback_vector)
+			print("IceProjectile: Dano e knockback aplicados a %s: %.1f" % [enemy.name, damage])
+		else:
+			enemy.take_damage(damage)
+			print("IceProjectile: Dano aplicado a %s: %.1f" % [enemy.name, damage])
+			
+			# Aplicar knockback separadamente se suportado
+			if enemy.has_method("apply_knockback"):
+				enemy.apply_knockback(knockback_vector)
 	
 	# Emitir sinal
 	enemy_hit.emit(enemy, frost_stacks)

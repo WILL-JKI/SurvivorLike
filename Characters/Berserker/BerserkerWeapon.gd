@@ -133,9 +133,23 @@ func hit_enemy(enemy: Node2D):
 	
 	# Aplicar dano
 	if enemy.has_method("take_damage"):
-		# Knockback na direção do ataque da espada
+		# Verificar se take_damage aceita parâmetro de knockback
+		var method_info = enemy.get_method_list()
+		var has_knockback_param = false
+		for method in method_info:
+			if method.name == "take_damage" and method.args.size() > 1:
+				has_knockback_param = true
+				break
+		
+		# Chamar take_damage com a assinatura correta
 		var knockback_vec = attack_direction * knockback_force
-		enemy.take_damage(current_damage, knockback_vec)
+		if has_knockback_param:
+			enemy.take_damage(current_damage, knockback_vec)
+		else:
+			enemy.take_damage(current_damage)
+			# Aplicar knockback separadamente se suportado
+			if enemy.has_method("apply_knockback"):
+				enemy.apply_knockback(knockback_vec)
 	
 	# Aplicar knockback
 	apply_knockback(enemy)
