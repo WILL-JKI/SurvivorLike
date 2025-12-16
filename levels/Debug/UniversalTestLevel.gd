@@ -8,6 +8,7 @@ class_name UniversalTestLevel
 @onready var enemy_spawner: Node2D = $EnemySpawner
 @onready var boss_spawn_timer: Timer = $BossSpawnTimer
 @onready var ui_layer: CanvasLayer = $UI
+@onready var ui_manager: UIManager = $UI/UIManager
 
 # Configurações do level
 @export var initial_enemies: int = 5
@@ -87,6 +88,11 @@ func spawn_selected_character():
 	
 	# Adicionar à cena
 	add_child(player_instance)
+	
+	# Conectar UI ao player
+	if ui_manager:
+		ui_manager.connect_to_player(player_instance)
+		print("UniversalTestLevel: UI conectada ao player")
 	
 	print("UniversalTestLevel: Personagem spawnado - %s" % character_resource.character_name)
 
@@ -189,6 +195,18 @@ func _input(event):
 	if Input.is_action_just_pressed("ui_cancel"):  # ESC
 		print("UniversalTestLevel: Voltando ao menu de seleção...")
 		get_tree().change_scene_to_file("res://UI/CharacterSelection.tscn")
+	
+	# Testes da UI de itens
+	if event.is_action_pressed("dv_debug"):  # F3
+		if ui_manager:
+			print("UniversalTestLevel: Forçando seleção de itens...")
+			ui_manager.debug_force_item_selection()
+	
+	# Teste de XP (tecla L para Level up)
+	if Input.is_action_just_pressed("ui_right"):  # Seta direita como teste
+		if player_instance and player_instance.has_method("gain_experience"):
+			print("UniversalTestLevel: Dando XP para teste...")
+			player_instance.gain_experience(50)  # Dar XP suficiente para subir de level
 
 func spawn_extra_enemies(count: int):
 	# Spawnar inimigos extras para teste

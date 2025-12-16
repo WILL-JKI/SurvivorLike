@@ -1,0 +1,50 @@
+[gd_scene load_steps=2 format=3 uid="uid://c9k8l7m6n5o4p3q2"]
+
+[ext_resource type="Script" path="res://UI/ItemSelectionUI.gd" id="1_item_selection_script"]
+
+[node name="ItemSelectionUI" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_item_selection_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -200.0
+offset_right = 400.0
+offset_bottom = 200.0
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "LEVEL UP! Escolha um item:"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_title")
+
+[node name="ItemsContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="SkipButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Pular (ESC)"
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 24
+font_color = Color(1, 1, 0, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)

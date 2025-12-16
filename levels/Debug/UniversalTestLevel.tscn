@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bvxk8qj2n5m7p"]
+[gd_scene load_steps=5 format=3 uid="uid://bvxk8qj2n5m7p"]
 
 [ext_resource type="Script" path="res://levels/Debug/UniversalTestLevel.gd" id="1_universal"]
 [ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="2_spawner"]
 [ext_resource type="PackedScene" uid="uid://dvbi3lpqnf0tr" path="res://_Core/SimpleDebugUI.tscn" id="3_debug"]
+[ext_resource type="PackedScene" uid="uid://d0l9m8n7o6p5q4r3" path="res://UI/UIManager.tscn" id="4_ui_manager"]
 
 [node name="UniversalTestLevel" type="Node2D"]
 script = ExtResource("1_universal")
@@ -24,6 +25,8 @@ one_shot = true
 
 [node name="UI" type="CanvasLayer" parent="."]
 
+[node name="UIManager" parent="UI" instance=ExtResource("4_ui_manager")]
+
 [node name="Instructions" type="Label" parent="UI"]
 anchors_preset = 3
 anchor_left = 1.0
@@ -39,7 +42,8 @@ text = "UNIVERSAL TEST LEVEL
 ENTER: Spawn extra enemies
 SPACE: Force boss spawn  
 ESC: Return to character selection
-F3: Debug UI"
+F3: Force item selection (test)
+→: Give XP (level up test)"
 horizontal_alignment = 2
 vertical_alignment = 2
 

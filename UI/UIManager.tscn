@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://d0l9m8n7o6p5q4r3"]
+
+[ext_resource type="Script" path="res://UI/UIManager.gd" id="1_ui_manager_script"]
+[ext_resource type="PackedScene" uid="uid://b8j7k2l9m3n4o5p6" path="res://UI/GameHUD.tscn" id="2_game_hud"]
+[ext_resource type="PackedScene" uid="uid://c9k8l7m6n5o4p3q2" path="res://UI/ItemSelectionUI.tscn" id="3_item_selection"]
+
+[node name="UIManager" type="Node"]
+script = ExtResource("1_ui_manager_script")
+
+[node name="GameHUD" parent="." instance=ExtResource("2_game_hud")]
+
+[node name="ItemSelectionUI" parent="." instance=ExtResource("3_item_selection")]
+visible = false
