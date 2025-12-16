@@ -12,9 +12,6 @@ signal selection_cancelled()
 @onready var items_container: HBoxContainer = $VBoxContainer/ItemsContainer
 @onready var skip_button: Button = $VBoxContainer/SkipButton
 
-# Template do botão de item
-var item_button_scene: PackedScene
-
 # Itens disponíveis para seleção
 var available_items: Array[ItemData] = []
 
@@ -22,7 +19,7 @@ func _ready():
 	# Configurar UI
 	setup_ui()
 	
-	# Carregar template do botão
+	# Configurar template (agora é criação direta)
 	create_item_button_template()
 	
 	# Inicialmente invisível
@@ -45,50 +42,8 @@ func setup_ui():
 		skip_button.pressed.connect(_on_skip_pressed)
 
 func create_item_button_template():
-	# Criar template do botão de item programaticamente
-	item_button_scene = PackedScene.new()
-	
-	# Criar nó raiz do botão
-	var button = Button.new()
-	button.name = "ItemButton"
-	button.custom_minimum_size = Vector2(200, 120)
-	
-	# Criar container vertical
-	var vbox = VBoxContainer.new()
-	vbox.name = "VBoxContainer"
-	button.add_child(vbox)
-	
-	# Ícone do item
-	var icon = TextureRect.new()
-	icon.name = "Icon"
-	icon.custom_minimum_size = Vector2(64, 64)
-	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	vbox.add_child(icon)
-	
-	# Nome do item
-	var name_label = Label.new()
-	name_label.name = "NameLabel"
-	name_label.text = "Item Name"
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(name_label)
-	
-	# Descrição do item
-	var desc_label = Label.new()
-	desc_label.name = "DescLabel"
-	desc_label.text = "Item Description"
-	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc_label.custom_minimum_size.y = 40
-	vbox.add_child(desc_label)
-	
-	# Configurar layout
-	vbox.anchors_preset = Control.PRESET_FULL_RECT
-	vbox.add_theme_constant_override("separation", 5)
-	
-	# Salvar como PackedScene
-	item_button_scene.pack(button)
+	# Não usar PackedScene - criar botões diretamente
+	print("ItemSelectionUI: Template de botão configurado (criação direta)")
 
 func show_item_selection(items: Array[ItemData]):
 	available_items = items
@@ -118,14 +73,24 @@ func clear_items_container():
 		child.queue_free()
 
 func create_item_button(item: ItemData, index: int):
-	if not item_button_scene or not items_container:
+	if not items_container:
+		print("ItemSelectionUI: ERRO - Items container não encontrado")
 		return
 	
-	# Instanciar botão do template
-	var button = item_button_scene.instantiate() as Button
-	if not button:
-		print("ItemSelectionUI: ERRO - Falha ao criar botão do item")
-		return
+	# Criar botão diretamente
+	var button = Button.new()
+	button.name = "ItemButton_%d" % index
+	button.custom_minimum_size = Vector2(200, 120)
+	
+	# Criar container vertical
+	var vbox = VBoxContainer.new()
+	vbox.name = "VBoxContainer"
+	vbox.anchors_preset = Control.PRESET_FULL_RECT
+	vbox.add_theme_constant_override("separation", 5)
+	button.add_child(vbox)
+	
+	# Criar componentes
+	create_button_components(vbox, item)
 	
 	# Configurar botão
 	setup_item_button(button, item, index)
@@ -133,12 +98,42 @@ func create_item_button(item: ItemData, index: int):
 	# Adicionar ao container
 	items_container.add_child(button)
 
+func create_button_components(vbox: VBoxContainer, item: ItemData):
+	# Ícone do item
+	var icon = TextureRect.new()
+	icon.name = "Icon"
+	icon.custom_minimum_size = Vector2(64, 64)
+	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	vbox.add_child(icon)
+	
+	# Nome do item
+	var name_label = Label.new()
+	name_label.name = "NameLabel"
+	name_label.text = "Item Name"
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(name_label)
+	
+	# Descrição do item
+	var desc_label = Label.new()
+	desc_label.name = "DescLabel"
+	desc_label.text = "Item Description"
+	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.custom_minimum_size.y = 40
+	vbox.add_child(desc_label)
+
 func setup_item_button(button: Button, item: ItemData, index: int):
-	# Encontrar componentes do botão
-	var vbox = button.get_node("VBoxContainer")
-	var icon = vbox.get_node("Icon") as TextureRect
-	var name_label = vbox.get_node("NameLabel") as Label
-	var desc_label = vbox.get_node("DescLabel") as Label
+	# Encontrar componentes do botão com verificação de segurança
+	var vbox = button.get_node_or_null("VBoxContainer")
+	if not vbox:
+		print("ItemSelectionUI: ERRO - VBoxContainer não encontrado no botão")
+		return
+	
+	var icon = vbox.get_node_or_null("Icon") as TextureRect
+	var name_label = vbox.get_node_or_null("NameLabel") as Label
+	var desc_label = vbox.get_node_or_null("DescLabel") as Label
 	
 	# Configurar ícone
 	if icon and item.icon:

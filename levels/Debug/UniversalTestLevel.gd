@@ -94,7 +94,8 @@ func spawn_selected_character():
 		ui_manager.connect_to_player(player_instance)
 		print("UniversalTestLevel: UI conectada ao player")
 	else:
-		print("UniversalTestLevel: AVISO - UIManager não encontrado")
+		print("UniversalTestLevel: AVISO - UIManager não encontrado, tentando fallback...")
+		create_fallback_ui()
 	
 	print("UniversalTestLevel: Personagem spawnado - %s" % character_resource.character_name)
 
@@ -286,6 +287,60 @@ func use_fallback_character(original_character: CharacterResource):
 	show_fallback_warning(original_character.character_name)
 	
 	print("UniversalTestLevel: Fallback spawnado com sucesso")
+
+func create_fallback_ui():
+	print("UniversalTestLevel: Criando UI de fallback...")
+	
+	# Tentar carregar SimpleUIManager
+	var simple_ui_scene = load("res://UI/SimpleUIManager.tscn")
+	if simple_ui_scene:
+		var simple_ui = simple_ui_scene.instantiate()
+		if simple_ui:
+			ui_layer.add_child(simple_ui)
+			
+			# Conectar ao player
+			if simple_ui.has_method("connect_to_player") and player_instance:
+				simple_ui.connect_to_player(player_instance)
+			
+			# Atualizar referência
+			ui_manager = simple_ui
+			print("UniversalTestLevel: SimpleUIManager carregado como fallback")
+			return
+	
+	# Se nem o SimpleUIManager funcionar, criar UI básica programaticamente
+	create_basic_ui()
+
+func create_basic_ui():
+	print("UniversalTestLevel: Criando UI básica programática...")
+	
+	# Criar HUD básico
+	var basic_hud = Control.new()
+	basic_hud.name = "BasicHUD"
+	
+	# Barra de vida
+	var health_label = Label.new()
+	health_label.text = "HP: 100/100"
+	health_label.position = Vector2(20, 20)
+	health_label.add_theme_font_size_override("font_size", 16)
+	basic_hud.add_child(health_label)
+	
+	# Barra de XP
+	var xp_label = Label.new()
+	xp_label.text = "XP: 0/100"
+	xp_label.position = Vector2(20, 50)
+	xp_label.add_theme_font_size_override("font_size", 16)
+	basic_hud.add_child(xp_label)
+	
+	# Level
+	var level_label = Label.new()
+	level_label.text = "Level: 1"
+	level_label.position = Vector2(20, 80)
+	level_label.add_theme_font_size_override("font_size", 18)
+	level_label.add_theme_color_override("font_color", Color.YELLOW)
+	basic_hud.add_child(level_label)
+	
+	ui_layer.add_child(basic_hud)
+	print("UniversalTestLevel: UI básica criada")
 
 func show_fallback_warning(original_character_name: String):
 	# Criar aviso de fallback
