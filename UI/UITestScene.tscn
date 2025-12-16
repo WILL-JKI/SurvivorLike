@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://test_ui_scene_123"]
+
+[ext_resource type="Script" path="res://_Core/SceneLoadTest.gd" id="1_test_script"]
+[ext_resource type="PackedScene" uid="uid://d0l9m8n7o6p5q4r3" path="res://UI/UIManager.tscn" id="2_ui_manager"]
+
+[node name="UITestScene" type="Node2D"]
+script = ExtResource("1_test_script")
+
+[node name="UIManager" parent="." instance=ExtResource("2_ui_manager")]
+
+[node name="Instructions" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
+text = "UI TEST SCENE
+
+This scene tests the UI components.
+Check the console for test results."
+horizontal_alignment = 1
+vertical_alignment = 1
