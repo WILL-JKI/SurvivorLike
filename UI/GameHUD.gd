@@ -166,14 +166,13 @@ func create_level_up_effect():
 		var tween = create_tween()
 		tween.set_parallel(true)
 		
-		# Piscar o label
+		# Piscar o label - fase 1 (crescer e amarelar)
 		tween.tween_property(level_label, "modulate", Color.YELLOW, 0.2)
 		tween.tween_property(level_label, "scale", Vector2(1.2, 1.2), 0.2)
 		
-		tween.tween_delay(0.5)
-		
-		tween.tween_property(level_label, "modulate", Color.WHITE, 0.2)
-		tween.tween_property(level_label, "scale", Vector2(1.0, 1.0), 0.2)
+		# Fase 2 (voltar ao normal) - com delay usando set_delay
+		tween.tween_property(level_label, "modulate", Color.WHITE, 0.2).set_delay(0.5)
+		tween.tween_property(level_label, "scale", Vector2(1.0, 1.0), 0.2).set_delay(0.5)
 
 # Função para mostrar/esconder HUD
 func set_hud_visible(visible: bool):
