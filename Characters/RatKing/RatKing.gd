@@ -193,20 +193,40 @@ func gain_experience(amount: int):
 	
 	print("RatKing: XP ganho: %d (base: %d, multiplicador: %.2fx)" % [modified_amount, amount, effective_xp_multiplier])
 	
-	# Verificar level up
+	# Contar quantos níveis foram ganhos
+	var levels_gained = 0
 	while current_experience >= experience_to_next_level:
 		current_experience -= experience_to_next_level
-		level_up()
+		level_up_internal()
+		levels_gained += 1
+	
+	# Emitir sinal apenas uma vez para todos os níveis ganhos
+	if levels_gained > 0:
+		print("RatKing: %d níveis ganhos de uma vez!" % levels_gained)
+		level_changed.emit(current_level)
+		check_evolution_unlocks()
+
+func level_up_internal():
+	# Level up interno sem emitir sinais (para múltiplos level ups)
+	current_level += 1
+	print("RatKing: Level up interno - Novo level: %d" % current_level)
 
 func level_up():
-	current_level += 1
+	# Level up público que emite sinais (para level up único)
+	level_up_internal()
 	level_changed.emit(current_level)
+	check_evolution_unlocks()
 	
+	print("RatKing: Level Up! Novo level: %d" % current_level)
+
+func check_evolution_unlocks():
 	# Verificar evoluções especiais
 	if current_level == 10:
 		evolution_available.emit("route_selection")
+		print("RatKing: Seleção de rota desbloqueada no level 10!")
 	elif current_level == 25:
 		evolution_available.emit("ultimate")
+		print("RatKing: Evolução ultimate desbloqueada no level 25!")
 	
 	# Aumentar dificuldade para próximo level
 	experience_to_next_level = int(experience_to_next_level * 1.2)

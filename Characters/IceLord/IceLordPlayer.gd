@@ -110,21 +110,18 @@ func apply_global_stats():
 	# Aplicar todos os stats globais atuais
 	var stats = GameManager.global_stats
 	
-	# Vida máxima (aplicar proporcionalmente)
+	# Vida máxima (aplicar sem recálculo proporcional problemático)
 	var health_mult = stats.get("max_health_mult", 1.0)
 	var old_max_health = max_health
 	max_health = base_max_health * health_mult
 	
-	print("IceLordPlayer: DEBUG Health - Base: %.1f, Mult: %.3f, Old Max: %.1f, New Max: %.1f" % [base_max_health, health_mult, old_max_health, max_health])
+	print("IceLordPlayer: Health aplicado - Base: %.1f, Mult: %.3f, Old Max: %.1f, New Max: %.1f" % [base_max_health, health_mult, old_max_health, max_health])
 	
-	# Ajustar vida atual proporcionalmente se necessário
-	if old_max_health > 0:
-		var health_ratio = current_health / old_max_health
-		var old_current_health = current_health
-		current_health = max_health * health_ratio
-		print("IceLordPlayer: DEBUG Health Ratio - Old Current: %.1f, Ratio: %.3f, New Current: %.1f" % [old_current_health, health_ratio, current_health])
-	else:
-		print("IceLordPlayer: DEBUG Health - old_max_health is 0, not adjusting current_health")
+	# Na inicialização, definir vida atual como vida máxima
+	# Em mudanças posteriores, manter vida atual (será ajustada por _on_global_stat_changed)
+	if current_health == 0:
+		current_health = max_health
+		print("IceLordPlayer: Vida inicial definida como %.1f" % current_health)
 	
 	# Velocidade de movimento
 	movement_speed = base_movement_speed * stats.get("move_speed", 1.0)
@@ -149,13 +146,16 @@ func _on_global_stat_changed(stat_key: String, new_value: float):
 	
 	match stat_key:
 		"max_health_mult":
+			# Calcular nova vida máxima baseada no valor acumulado
 			var old_max_health = max_health
 			max_health = base_max_health * new_value
-			# Ajustar vida atual proporcionalmente
-			if old_max_health > 0:
-				var health_ratio = current_health / old_max_health
-				current_health = max_health * health_ratio
-			print("IceLordPlayer: Vida máxima atualizada para %.1f" % max_health)
+			
+			# IMPORTANTE: Manter a vida atual como está, não recalcular proporcionalmente
+			# O recálculo proporcional estava causando crescimento exponencial
+			# Apenas garantir que não exceda a nova vida máxima
+			current_health = min(current_health, max_health)
+			
+			print("IceLordPlayer: Vida máxima atualizada - Base: %.1f, Mult: %.3f, Nova Max: %.1f, Atual: %.1f" % [base_max_health, new_value, max_health, current_health])
 		
 		"move_speed":
 			movement_speed = base_movement_speed * new_value
@@ -413,10 +413,22 @@ func gain_experience(amount: int):
 	
 	print("IceLordPlayer: XP ganho: %d (multiplicador: %.2f)" % [final_amount, xp_mult])
 	
+	# Contar quantos níveis foram ganhos
+	var levels_gained = 0
 	while current_experience >= experience_to_next_level:
-		level_up()
+		level_up_internal()
+		levels_gained += 1
+	
+	# Emitir sinal apenas uma vez para todos os níveis ganhos
+	if levels_gained > 0:
+		print("IceLordPlayer: %d níveis ganhos de uma vez!" % levels_gained)
+		level_changed.emit(current_level)
+		
+		# Verificar evoluções especiais
+		check_evolution_unlocks()
 
-func level_up():
+func level_up_internal():
+	# Level up interno sem emitir sinais (para múltiplos level ups)
 	current_experience -= experience_to_next_level
 	current_level += 1
 	experience_to_next_level = int(experience_to_next_level * 1.2)
@@ -424,15 +436,24 @@ func level_up():
 	# Atualizar estatísticas da sessão
 	GameManager.update_level_reached(current_level)
 	
+	print("IceLordPlayer: Level up interno - Novo level: %d" % current_level)
+
+func level_up():
+	# Level up público que emite sinais (para level up único)
+	level_up_internal()
 	level_changed.emit(current_level)
+	check_evolution_unlocks()
 	
+	print("IceLordPlayer: Level Up! Novo level: %d" % current_level)
+
+func check_evolution_unlocks():
 	# Verificar evoluções especiais
 	if current_level == 10:
 		evolution_available.emit("evolution_choice")
+		print("IceLordPlayer: Evolução desbloqueada no level 10!")
 	elif current_level == 25:
 		evolution_available.emit("ultimate")
-	
-	print("IceLordPlayer: Level Up! Novo level: %d" % current_level)
+		print("IceLordPlayer: Evolução ultimate desbloqueada no level 25!")
 
 # Sistema de upgrades
 func apply_upgrade(upgrade_id: String, value: float = 0.0):
