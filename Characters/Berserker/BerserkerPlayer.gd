@@ -278,16 +278,20 @@ func gain_experience(amount: int):
 	
 	print("BerserkerPlayer: XP ganho: %d (base: %d, multiplicador: %.2fx)" % [modified_amount, amount, effective_xp_multiplier])
 	
-	# Contar quantos níveis foram ganhos
-	var levels_gained = 0
+	# Processar level ups um por vez para garantir múltiplas telas de upgrade
 	while current_experience >= experience_to_next_level:
-		level_up_internal()
-		levels_gained += 1
+		level_up_single()
+
+func level_up_single():
+	# Level up individual que emite sinal para cada nível
+	current_experience -= experience_to_next_level
+	current_level += 1
+	experience_to_next_level = int(experience_to_next_level * 1.2)  # Progressão exponencial
 	
-	# Emitir sinal apenas uma vez para todos os níveis ganhos
-	if levels_gained > 0:
-		print("BerserkerPlayer: %d níveis ganhos de uma vez!" % levels_gained)
-		level_changed.emit(current_level)
+	print("BerserkerPlayer: Level Up! Novo level: %d" % current_level)
+	
+	# Emitir sinal para este nível específico
+	level_changed.emit(current_level)
 
 func level_up_internal():
 	# Level up interno sem emitir sinais (para múltiplos level ups)

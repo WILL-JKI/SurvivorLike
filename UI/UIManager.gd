@@ -9,6 +9,7 @@ class_name UIManager
 
 # Estado da UI
 var is_item_selection_open: bool = false
+var pending_level_ups: Array[int] = []  # Fila de level ups pendentes
 
 func _ready():
 	# Configurar sinais
@@ -28,10 +29,20 @@ func _on_item_selected(item: ItemData):
 	
 	# Criar efeito visual de item aplicado
 	create_item_applied_effect(item)
+	
+	# Processar próximo level up se houver
+	if not pending_level_ups.is_empty():
+		await get_tree().create_timer(0.3).timeout  # Pequeno delay entre seleções
+		process_next_level_up()
 
 func _on_selection_cancelled():
 	print("UIManager: Seleção de item cancelada")
 	is_item_selection_open = false
+	
+	# Processar próximo level up se houver
+	if not pending_level_ups.is_empty():
+		await get_tree().create_timer(0.3).timeout  # Pequeno delay entre seleções
+		process_next_level_up()
 
 func create_item_applied_effect(item: ItemData):
 	# Efeito visual quando um item é aplicado
@@ -96,8 +107,22 @@ func connect_to_player(player: Node2D):
 func _on_player_level_up(new_level: int):
 	print("UIManager: Player subiu para level %d" % new_level)
 	
-	# Mostrar seleção de itens após um pequeno delay
-	await get_tree().create_timer(0.5).timeout
+	# Adicionar à fila de level ups
+	pending_level_ups.append(new_level)
+	
+	# Se não há seleção aberta, processar imediatamente
+	if not is_item_selection_open:
+		process_next_level_up()
+
+func process_next_level_up():
+	# Processar o próximo level up da fila
+	if pending_level_ups.is_empty():
+		return
+	
+	var level = pending_level_ups.pop_front()
+	print("UIManager: Processando level up %d (restam %d na fila)" % [level, pending_level_ups.size()])
+	
+	is_item_selection_open = true
 	show_item_selection()
 
 # Funções de controle da UI
