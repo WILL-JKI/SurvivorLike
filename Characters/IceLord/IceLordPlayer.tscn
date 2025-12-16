@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b72g8yjwpl6da"]
 
-[ext_resource type="Script" path="res://Characters/IceLord/IceLordPlayer.gd" id="1_ice_player"]
+[ext_resource type="Script" uid="uid://mpv80u3sl4bk" path="res://Characters/IceLord/IceLordPlayer.gd" id="1_ice_player"]
 [ext_resource type="Texture2D" uid="uid://bo81ugt0qja6s" path="res://icon.svg" id="2_ice_player_texture"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
@@ -11,14 +11,6 @@ radius = 150.0
 
 [node name="IceLordPlayer" type="CharacterBody2D"]
 script = ExtResource("1_ice_player")
-max_health = 80.0
-movement_speed = 110.0
-experience_to_next_level = 100
-base_damage = 15.0
-attack_cooldown = 1.0
-projectile_speed = 200.0
-frost_stacks_per_hit = 1
-detection_range = 300.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.8, 0.9, 1, 1)
@@ -29,16 +21,15 @@ texture = ExtResource("2_ice_player_texture")
 shape = SubResource("CircleShape2D_player")
 
 [node name="AttackTimer" type="Timer" parent="."]
-wait_time = 1.0
 one_shot = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(1.5, 1.5)
 
 [node name="BlizzardArea" type="Area2D" parent="."]
-monitoring = false
 collision_layer = 0
 collision_mask = 2
+monitoring = false
 
 [node name="BlizzardCollision" type="CollisionShape2D" parent="BlizzardArea"]
 modulate = Color(0.5, 0.7, 1, 0.3)

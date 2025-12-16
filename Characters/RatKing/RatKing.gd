@@ -33,6 +33,11 @@ var current_level: int = 1
 var active_minions: Array[RatMinion] = []
 var evolution_route: String = ""  # "swarm", "beast", ou ""
 
+# Stats modificados por itens globais
+var effective_max_health: float
+var effective_movement_speed: float
+var effective_xp_multiplier: float = 1.0
+
 # Variáveis de movimento para os minions
 var is_moving: bool = false
 var last_position: Vector2 = Vector2.ZERO
@@ -63,11 +68,16 @@ func _ready():
 	# Carregar cena do minion
 	minion_scene = load("res://Characters/RatKing/RatMinion.tscn")
 	
-	# Inicializar variáveis
-	current_health = max_health
+	# Inicializar stats com valores base
+	update_stats_from_global()
+	current_health = effective_max_health
 	
 	# Configurar grupos
 	add_to_group("players")
+	
+	# Conectar ao sinal de mudança de stats do GameManager
+	if GameManager:
+		GameManager.stat_changed.connect(_on_global_stat_changed)
 	
 	# Configurar timer de spawn
 	spawn_timer.wait_time = spawn_rate
@@ -105,7 +115,7 @@ func handle_movement(delta):
 	var movement_velocity = Vector2.ZERO
 	if input_vector != Vector2.ZERO:
 		input_vector = input_vector.normalized()
-		movement_velocity = input_vector * movement_speed
+		movement_velocity = input_vector * effective_movement_speed
 	
 	# Combinar movimento normal com knockback
 	if knockback_velocity.length() < 10.0:  # Se knockback é pequeno, permitir movimento
@@ -177,7 +187,11 @@ func clean_dead_minions():
 	active_minions = active_minions.filter(func(minion): return is_instance_valid(minion))
 
 func gain_experience(amount: int):
-	current_experience += amount
+	# Aplicar multiplicador de XP dos itens globais
+	var modified_amount = int(amount * effective_xp_multiplier)
+	current_experience += modified_amount
+	
+	print("RatKing: XP ganho: %d (base: %d, multiplicador: %.2fx)" % [modified_amount, amount, effective_xp_multiplier])
 	
 	# Verificar level up
 	while current_experience >= experience_to_next_level:
@@ -431,3 +445,48 @@ func update_camera_normal(delta):
 	# Zoom normal
 	var target_zoom = camera_base_zoom
 	camera.zoom = camera.zoom.lerp(target_zoom, camera_smooth_speed * delta)
+# Sistema de Stats Globais
+func update_stats_from_global():
+	if not GameManager:
+		# Usar valores base se GameManager não estiver disponível
+		effective_max_health = max_health
+		effective_movement_speed = movement_speed
+		effective_xp_multiplier = 1.0
+		return
+	
+	# Aplicar multiplicadores dos itens globais
+	effective_max_health = max_health * GameManager.get_stat("max_health_mult")
+	effective_movement_speed = movement_speed * GameManager.get_stat("move_speed")
+	effective_xp_multiplier = GameManager.get_stat("xp_gain")
+	
+	# Atualizar vida atual proporcionalmente se a vida máxima mudou
+	if current_health > 0:
+		var health_ratio = current_health / max_health
+		current_health = effective_max_health * health_ratio
+	
+	print("RatKing: Stats atualizados - Vida: %.1f, Velocidade: %.1f, XP: %.2fx" % [effective_max_health, effective_movement_speed, effective_xp_multiplier])
+
+func _on_global_stat_changed(stat_key: String, new_value: float):
+	# Reagir a mudanças específicas de stats
+	match stat_key:
+		"max_health_mult", "move_speed", "xp_gain":
+			update_stats_from_global()
+		"area_size":
+			# Aplicar area_size aos minions existentes
+			apply_area_size_to_minions()
+
+func apply_area_size_to_minions():
+	var area_multiplier = GameManager.get_stat("area_size")
+	
+	# Aplicar aos minions ativos
+	for minion in active_minions:
+		if is_instance_valid(minion):
+			minion.scale = Vector2.ONE * area_multiplier
+	
+	# Aplicar aos minions do SummonManager se disponível
+	if SummonManager:
+		for minion in SummonManager.active_minions:
+			if is_instance_valid(minion):
+				minion.scale = Vector2.ONE * area_multiplier
+	
+	print("RatKing: Area size aplicado aos minions: %.2fx" % area_multiplier)

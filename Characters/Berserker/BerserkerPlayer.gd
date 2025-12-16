@@ -32,6 +32,12 @@ var enemies_in_fury_range: int = 0
 var current_attack_cooldown: float = 0.0
 var last_movement_direction: Vector2 = Vector2.RIGHT  # Direção do último movimento
 
+# Stats modificados por itens globais
+var effective_max_health: float
+var effective_movement_speed: float
+var effective_base_cooldown: float
+var effective_xp_multiplier: float = 1.0
+
 # Variáveis de knockback
 var knockback_velocity: Vector2 = Vector2.ZERO
 var knockback_friction: float = 800.0
@@ -47,7 +53,14 @@ var knockback_friction: float = 800.0
 func _ready():
 	# Configurar player
 	add_to_group("players")
-	current_health = max_health
+	
+	# Inicializar stats com valores base
+	update_stats_from_global()
+	current_health = effective_max_health
+	
+	# Conectar ao sinal de mudança de stats do GameManager
+	if GameManager:
+		GameManager.stat_changed.connect(_on_global_stat_changed)
 	
 	# Configurar colisão
 	collision_layer = 1  # Layer do player
@@ -61,7 +74,7 @@ func _ready():
 	setup_fury_detector()
 	
 	# Configurar timer de ataque
-	attack_timer.wait_time = base_cooldown
+	attack_timer.wait_time = effective_base_cooldown
 	attack_timer.one_shot = true
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 	
@@ -108,7 +121,7 @@ func handle_movement(delta):
 	# Normalizar e aplicar velocidade
 	if input_vector != Vector2.ZERO:
 		input_vector = input_vector.normalized()
-		velocity = input_vector * movement_speed
+		velocity = input_vector * effective_movement_speed
 		# Atualizar direção do último movimento para ataques
 		last_movement_direction = input_vector
 	else:
@@ -138,7 +151,7 @@ func handle_combat(delta):
 func attack():
 	# Calcular cooldown com base na fúria
 	var fury_reduction = enemies_in_fury_range * fury_multiplier
-	var effective_cooldown = base_cooldown * (1.0 - min(fury_reduction, 0.8))  # Máximo 80% redução
+	var final_cooldown = effective_base_cooldown * (1.0 - min(fury_reduction, 0.8))  # Máximo 80% redução
 	
 	# Determinar direção do ataque
 	var attack_direction = get_attack_direction()
@@ -147,10 +160,10 @@ func attack():
 	weapon.attack(attack_direction)
 	
 	# Configurar próximo ataque
-	attack_timer.wait_time = effective_cooldown
+	attack_timer.wait_time = final_cooldown
 	attack_timer.start()
 	
-	print("BerserkerPlayer: Espada atacando na direção: %s! Cooldown: %.2f" % [attack_direction, effective_cooldown])
+	print("BerserkerPlayer: Espada atacando na direção: %s! Cooldown: %.2f" % [attack_direction, final_cooldown])
 
 func get_attack_direction() -> Vector2:
 	# Prioridade: direção para o inimigo mais próximo, senão direção do movimento
@@ -259,7 +272,11 @@ func die():
 
 # Funções de experiência e level
 func gain_experience(amount: int):
-	current_experience += amount
+	# Aplicar multiplicador de XP dos itens globais
+	var modified_amount = int(amount * effective_xp_multiplier)
+	current_experience += modified_amount
+	
+	print("BerserkerPlayer: XP ganho: %d (base: %d, multiplicador: %.2fx)" % [modified_amount, amount, effective_xp_multiplier])
 	
 	while current_experience >= experience_to_next_level:
 		level_up()
@@ -377,3 +394,48 @@ func get_player_info() -> Dictionary:
 		"base_damage": base_damage,
 		"vampirism_chance": vampirism_chance
 	}
+# Sistema de Stats Globais
+func update_stats_from_global():
+	if not GameManager:
+		# Usar valores base se GameManager não estiver disponível
+		effective_max_health = max_health
+		effective_movement_speed = movement_speed
+		effective_base_cooldown = base_cooldown
+		effective_xp_multiplier = 1.0
+		return
+	
+	# Aplicar multiplicadores dos itens globais
+	effective_max_health = max_health * GameManager.get_stat("max_health_mult")
+	effective_movement_speed = movement_speed * GameManager.get_stat("move_speed")
+	effective_xp_multiplier = GameManager.get_stat("xp_gain")
+	
+	# Aplicar redução de cooldown
+	var cooldown_reduction = GameManager.get_stat("cooldown_reduction")
+	effective_base_cooldown = base_cooldown * (1.0 - cooldown_reduction)
+	
+	# Atualizar vida atual proporcionalmente se a vida máxima mudou
+	if current_health > 0:
+		var health_ratio = current_health / max_health
+		current_health = effective_max_health * health_ratio
+	
+	# Aplicar area_size à arma
+	if weapon:
+		var area_multiplier = GameManager.get_stat("area_size")
+		weapon.set_area_size(area_multiplier)
+	
+	print("BerserkerPlayer: Stats atualizados - Vida: %.1f, Velocidade: %.1f, Cooldown: %.2f, XP: %.2fx" % [effective_max_health, effective_movement_speed, effective_base_cooldown, effective_xp_multiplier])
+
+func _on_global_stat_changed(stat_key: String, new_value: float):
+	# Reagir a mudanças específicas de stats
+	match stat_key:
+		"max_health_mult", "move_speed", "xp_gain", "cooldown_reduction":
+			update_stats_from_global()
+		"area_size":
+			# Aplicar area_size à arma imediatamente
+			if weapon:
+				weapon.set_area_size(new_value)
+		"knockback":
+			# Aplicar knockback à arma
+			if weapon:
+				var knockback_multiplier = GameManager.get_stat("knockback")
+				weapon.knockback_force = weapon.knockback_force * knockback_multiplier
