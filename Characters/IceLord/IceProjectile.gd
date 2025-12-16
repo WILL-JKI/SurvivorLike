@@ -12,6 +12,8 @@ signal projectile_destroyed()
 @export var damage: float = 15.0   # Dano base do projétil
 @export var lifetime: float = 3.0  # Tempo de vida máximo
 @export var piercing: int = 0      # Quantos inimigos pode atravessar (0 = para no primeiro)
+@export var knockback_force: float = 100.0  # Força de knockback
+@export var area_multiplier: float = 1.0    # Multiplicador de área de efeito
 
 # Variáveis internas
 var direction: Vector2 = Vector2.RIGHT
@@ -39,10 +41,13 @@ func _ready():
 	lifetime_timer.timeout.connect(_on_lifetime_expired)
 	lifetime_timer.start()
 	
+	# Aplicar multiplicador de área
+	apply_area_multiplier()
+	
 	# Orientar sprite na direção do movimento
 	rotation = direction.angle()
 	
-	print("IceProjectile: Projétil de gelo criado - Frost stacks: %d, Piercing: %d" % [frost_stacks, piercing])
+	print("IceProjectile: Projétil de gelo criado - Frost stacks: %d, Piercing: %d, Área: %.2f" % [frost_stacks, piercing, area_multiplier])
 
 func _physics_process(delta):
 	# Movimento linear simples
@@ -76,9 +81,10 @@ func hit_enemy(enemy: Node2D):
 		enemy.apply_frost(frost_stacks)
 		print("IceProjectile: Aplicando %d frost stacks em %s" % [frost_stacks, enemy.name])
 	
-	# Aplicar dano base
+	# Aplicar dano e knockback
 	if enemy.has_method("take_damage"):
-		enemy.take_damage(damage)
+		var knockback_vector = direction * knockback_force
+		enemy.take_damage(damage, knockback_vector)
 	
 	# Emitir sinal
 	enemy_hit.emit(enemy, frost_stacks)
@@ -150,3 +156,23 @@ func upgrade_damage(amount: float):
 func set_infinite_piercing():
 	piercing = 999  # Piercing "infinito"
 	print("IceProjectile: Piercing infinito ativado!")
+
+func set_area_multiplier(multiplier: float):
+	area_multiplier = multiplier
+	apply_area_multiplier()
+
+func apply_area_multiplier():
+	# Aplicar multiplicador de área ao collision shape
+	if collision_shape and collision_shape.shape:
+		var original_scale = collision_shape.scale
+		collision_shape.scale = original_scale * area_multiplier
+		
+		# Aplicar também ao sprite para feedback visual
+		if sprite:
+			sprite.scale = sprite.scale * area_multiplier
+		
+		print("IceProjectile: Área multiplicada por %.2f" % area_multiplier)
+
+func upgrade_knockback(multiplier: float):
+	knockback_force *= multiplier
+	print("IceProjectile: Knockback aumentado para: %.1f" % knockback_force)

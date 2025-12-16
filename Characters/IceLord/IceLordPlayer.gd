@@ -38,6 +38,13 @@ var can_attack: bool = true
 var knockback_velocity: Vector2 = Vector2.ZERO
 var knockback_friction: float = 800.0
 
+# Variáveis para stats globais (valores base para cálculos)
+var base_max_health: float = 80.0
+var base_movement_speed: float = 110.0
+var base_attack_cooldown: float = 1.0
+var base_projectile_speed: float = 200.0
+var base_detection_range: float = 300.0
+
 # Referências dos nós
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -54,6 +61,12 @@ func _ready():
 	
 	# Configurar player
 	add_to_group("players")
+	
+	# Conectar ao sistema de stats globais
+	connect_to_global_stats()
+	
+	# Aplicar stats iniciais
+	apply_global_stats()
 	current_health = max_health
 	
 	# Configurar colisão
@@ -72,7 +85,7 @@ func _ready():
 	# Configurar blizzard area (inicialmente desabilitada)
 	setup_blizzard_area()
 	
-	print("IceLordPlayer: Ice Lord inicializado")
+	print("IceLordPlayer: Ice Lord inicializado com stats globais")
 
 func setup_blizzard_area():
 	if not blizzard_area:
@@ -85,6 +98,74 @@ func setup_blizzard_area():
 	# Conectar sinais para blizzard
 	blizzard_area.body_entered.connect(_on_blizzard_body_entered)
 	blizzard_area.body_exited.connect(_on_blizzard_body_exited)
+
+# Sistema de Stats Globais
+func connect_to_global_stats():
+	# Conectar ao sinal de mudança de stats do GameManager
+	if GameManager.has_signal("stat_changed"):
+		GameManager.stat_changed.connect(_on_global_stat_changed)
+		print("IceLordPlayer: Conectado ao sistema de stats globais")
+
+func apply_global_stats():
+	# Aplicar todos os stats globais atuais
+	var stats = GameManager.global_stats
+	
+	# Vida máxima (aplicar proporcionalmente)
+	var health_mult = stats.get("max_health_mult", 1.0)
+	var old_max_health = max_health
+	max_health = base_max_health * health_mult
+	
+	# Ajustar vida atual proporcionalmente se necessário
+	if old_max_health > 0:
+		var health_ratio = current_health / old_max_health
+		current_health = max_health * health_ratio
+	
+	# Velocidade de movimento
+	movement_speed = base_movement_speed * stats.get("move_speed", 1.0)
+	
+	# Cooldown de ataque (redução)
+	var cooldown_reduction = stats.get("cooldown_reduction", 0.0)
+	attack_cooldown = base_attack_cooldown * (1.0 - cooldown_reduction)
+	if attack_timer:
+		attack_timer.wait_time = attack_cooldown
+	
+	# Velocidade de projétil
+	projectile_speed = base_projectile_speed * stats.get("projectile_speed", 1.0)
+	
+	# Alcance de detecção (baseado em pickup_range)
+	detection_range = base_detection_range * stats.get("pickup_range", 1.0)
+	
+	print("IceLordPlayer: Stats globais aplicados - Vida: %.1f, Velocidade: %.1f, Cooldown: %.2f" % [max_health, movement_speed, attack_cooldown])
+
+func _on_global_stat_changed(stat_key: String, new_value: float):
+	# Reagir a mudanças específicas de stats em tempo real
+	match stat_key:
+		"max_health_mult":
+			var old_max_health = max_health
+			max_health = base_max_health * new_value
+			# Ajustar vida atual proporcionalmente
+			if old_max_health > 0:
+				var health_ratio = current_health / old_max_health
+				current_health = max_health * health_ratio
+			print("IceLordPlayer: Vida máxima atualizada para %.1f" % max_health)
+		
+		"move_speed":
+			movement_speed = base_movement_speed * new_value
+			print("IceLordPlayer: Velocidade atualizada para %.1f" % movement_speed)
+		
+		"cooldown_reduction":
+			attack_cooldown = base_attack_cooldown * (1.0 - new_value)
+			if attack_timer:
+				attack_timer.wait_time = attack_cooldown
+			print("IceLordPlayer: Cooldown atualizado para %.2f" % attack_cooldown)
+		
+		"projectile_speed":
+			projectile_speed = base_projectile_speed * new_value
+			print("IceLordPlayer: Velocidade de projétil atualizada para %.1f" % projectile_speed)
+		
+		"pickup_range":
+			detection_range = base_detection_range * new_value
+			print("IceLordPlayer: Alcance de detecção atualizado para %.1f" % detection_range)
 
 func _physics_process(delta):
 	handle_movement(delta)
@@ -173,7 +254,20 @@ func attack_enemy(target: Node2D):
 func apply_projectile_upgrades(projectile: IceProjectile):
 	# Aplicar upgrades acumulados ao projétil
 	projectile.frost_stacks = frost_stacks_per_hit
-	projectile.damage = base_damage + (shatter_damage_bonus if is_target_frozen(null) else 0.0)
+	
+	# Aplicar stats globais ao dano
+	var final_damage = base_damage + (shatter_damage_bonus if is_target_frozen(null) else 0.0)
+	projectile.damage = final_damage
+	
+	# Aplicar knockback global
+	var knockback_mult = GameManager.get_stat("knockback")
+	projectile.knockback_force *= knockback_mult
+	
+	# Aplicar área de efeito (se aplicável)
+	var area_mult = GameManager.get_stat("area_size")
+	if projectile.has_method("set_area_multiplier"):
+		projectile.set_area_multiplier(area_mult)
+	
 	projectile.piercing = piercing_amount
 	
 	# Modo lance (evolução)
@@ -239,13 +333,20 @@ func apply_blizzard_frost(enemy: Node2D, timer: Timer):
 		enemy.apply_frost(1)  # 1 stack a cada 0.5s
 
 # Funções de dano e cura
-func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
+func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO, attacker: Node2D = null):
 	current_health -= amount
 	current_health = max(0, current_health)
 	
 	# Aplicar knockback se fornecido
 	if knockback_force != Vector2.ZERO:
 		apply_knockback(knockback_force)
+	
+	# Aplicar dano de espinhos (thorns)
+	var thorns_damage = GameManager.get_stat("thorns_damage")
+	if thorns_damage > 0.0 and attacker and attacker.has_method("take_damage"):
+		var thorns_final_damage = thorns_damage * amount  # Porcentagem do dano recebido
+		attacker.take_damage(thorns_final_damage)
+		print("IceLordPlayer: Dano de espinhos aplicado: %.1f" % thorns_final_damage)
 	
 	# Efeito visual de dano
 	create_damage_effect()
@@ -271,7 +372,16 @@ func die():
 
 # Funções de experiência e level
 func gain_experience(amount: int):
-	current_experience += amount
+	# Aplicar multiplicador de XP global
+	var xp_mult = GameManager.get_stat("xp_gain")
+	var final_amount = int(amount * xp_mult)
+	
+	current_experience += final_amount
+	
+	# Atualizar estatísticas da sessão
+	GameManager.add_xp_gained(final_amount)
+	
+	print("IceLordPlayer: XP ganho: %d (multiplicador: %.2f)" % [final_amount, xp_mult])
 	
 	while current_experience >= experience_to_next_level:
 		level_up()
@@ -280,6 +390,9 @@ func level_up():
 	current_experience -= experience_to_next_level
 	current_level += 1
 	experience_to_next_level = int(experience_to_next_level * 1.2)
+	
+	# Atualizar estatísticas da sessão
+	GameManager.update_level_reached(current_level)
 	
 	level_changed.emit(current_level)
 	
@@ -385,5 +498,10 @@ func get_player_info() -> Dictionary:
 		"base_damage": base_damage,
 		"frost_stacks": frost_stacks_per_hit,
 		"piercing": piercing_amount,
-		"shatter_bonus": shatter_damage_bonus
+		"shatter_bonus": shatter_damage_bonus,
+		"movement_speed": movement_speed,
+		"attack_cooldown": attack_cooldown,
+		"projectile_speed": projectile_speed,
+		"detection_range": detection_range,
+		"global_stats": GameManager.global_stats
 	}
