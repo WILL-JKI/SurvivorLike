@@ -115,10 +115,16 @@ func apply_global_stats():
 	var old_max_health = max_health
 	max_health = base_max_health * health_mult
 	
+	print("IceLordPlayer: DEBUG Health - Base: %.1f, Mult: %.3f, Old Max: %.1f, New Max: %.1f" % [base_max_health, health_mult, old_max_health, max_health])
+	
 	# Ajustar vida atual proporcionalmente se necessário
 	if old_max_health > 0:
 		var health_ratio = current_health / old_max_health
+		var old_current_health = current_health
 		current_health = max_health * health_ratio
+		print("IceLordPlayer: DEBUG Health Ratio - Old Current: %.1f, Ratio: %.3f, New Current: %.1f" % [old_current_health, health_ratio, current_health])
+	else:
+		print("IceLordPlayer: DEBUG Health - old_max_health is 0, not adjusting current_health")
 	
 	# Velocidade de movimento
 	movement_speed = base_movement_speed * stats.get("move_speed", 1.0)
@@ -139,6 +145,8 @@ func apply_global_stats():
 
 func _on_global_stat_changed(stat_key: String, new_value: float):
 	# Reagir a mudanças específicas de stats em tempo real
+	print("IceLordPlayer: DEBUG Stat Changed - %s = %.3f" % [stat_key, new_value])
+	
 	match stat_key:
 		"max_health_mult":
 			var old_max_health = max_health
@@ -166,6 +174,14 @@ func _on_global_stat_changed(stat_key: String, new_value: float):
 		"pickup_range":
 			detection_range = base_detection_range * new_value
 			print("IceLordPlayer: Alcance de detecção atualizado para %.1f" % detection_range)
+		
+		"xp_gain":
+			# XP gain não afeta diretamente o player, apenas o ganho de XP
+			print("IceLordPlayer: XP gain atualizado para %.3f (não afeta player diretamente)" % new_value)
+		
+		_:
+			# Stats que não afetam o player diretamente
+			print("IceLordPlayer: Stat %s não processado diretamente pelo player" % stat_key)
 
 func _physics_process(delta):
 	handle_movement(delta)
