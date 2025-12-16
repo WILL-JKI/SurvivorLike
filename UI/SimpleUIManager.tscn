@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://simple_ui_manager"]
+
+[ext_resource type="Script" path="res://UI/SimpleUIManager.gd" id="1_simple_ui_script"]
+[ext_resource type="PackedScene" uid="uid://simple_hud_test" path="res://UI/SimpleHUD.tscn" id="2_simple_hud"]
+[ext_resource type="PackedScene" uid="uid://simple_item_selection" path="res://UI/SimpleItemSelection.tscn" id="3_simple_item"]
+
+[node name="SimpleUIManager" type="Node"]
+script = ExtResource("1_simple_ui_script")
+
+[node name="SimpleHUD" parent="." instance=ExtResource("2_simple_hud")]
+
+[node name="SimpleItemSelection" parent="." instance=ExtResource("3_simple_item")]
+visible = false

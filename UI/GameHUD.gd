@@ -24,18 +24,24 @@ func _ready():
 	print("GameHUD: HUD inicializado")
 
 func setup_hud():
-	# Configurar barras de progresso
+	# Configurar barras de progresso com verificações de segurança
 	if health_bar:
 		health_bar.min_value = 0
 		health_bar.max_value = 100
 		health_bar.value = 100
 		health_bar.show_percentage = false
+		print("GameHUD: Health bar configurada")
+	else:
+		print("GameHUD: AVISO - Health bar não encontrada")
 	
 	if xp_bar:
 		xp_bar.min_value = 0
 		xp_bar.max_value = 100
 		xp_bar.value = 0
 		xp_bar.show_percentage = false
+		print("GameHUD: XP bar configurada")
+	else:
+		print("GameHUD: AVISO - XP bar não encontrada")
 
 func find_player():
 	# Procurar player na cena

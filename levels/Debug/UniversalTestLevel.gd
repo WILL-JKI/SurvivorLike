@@ -93,6 +93,8 @@ func spawn_selected_character():
 	if ui_manager:
 		ui_manager.connect_to_player(player_instance)
 		print("UniversalTestLevel: UI conectada ao player")
+	else:
+		print("UniversalTestLevel: AVISO - UIManager não encontrado")
 	
 	print("UniversalTestLevel: Personagem spawnado - %s" % character_resource.character_name)
 
@@ -200,7 +202,12 @@ func _input(event):
 	if event.is_action_pressed("dv_debug"):  # F3
 		if ui_manager:
 			print("UniversalTestLevel: Forçando seleção de itens...")
-			ui_manager.debug_force_item_selection()
+			if ui_manager.has_method("debug_force_item_selection"):
+				ui_manager.debug_force_item_selection()
+			elif ui_manager.has_method("debug_show_item_selection"):
+				ui_manager.debug_show_item_selection()
+			else:
+				print("UniversalTestLevel: ERRO - Método de debug não encontrado no UIManager")
 	
 	# Teste de XP (tecla L para Level up)
 	if Input.is_action_just_pressed("ui_right"):  # Seta direita como teste
