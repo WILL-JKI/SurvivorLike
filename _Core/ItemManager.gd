@@ -1,14 +1,14 @@
 extends Node
-class_name ItemManager
 
 # Gerenciador de itens passivos do jogo
 # Cria e gerencia todos os itens disponíveis
+# Singleton autoload - não usar class_name
 
 # Lista de todos os itens disponíveis
-static var all_items: Array[ItemData] = []
+var all_items: Array[ItemData] = []
 
 # Função para inicializar todos os itens
-static func initialize_items():
+func initialize_items():
 	all_items.clear()
 	
 	# 1. Sanduíche de Jake - Área
@@ -104,14 +104,14 @@ static func initialize_items():
 	print("ItemManager: %d itens inicializados" % all_items.size())
 
 # Função para obter item por nome
-static func get_item_by_name(item_name: String) -> ItemData:
+func get_item_by_name(item_name: String) -> ItemData:
 	for item in all_items:
 		if item.display_name == item_name:
 			return item
 	return null
 
 # Função para obter itens por stat_key
-static func get_items_by_stat(stat_key: String) -> Array[ItemData]:
+func get_items_by_stat(stat_key: String) -> Array[ItemData]:
 	var items: Array[ItemData] = []
 	for item in all_items:
 		if item.stat_key == stat_key:
@@ -119,7 +119,7 @@ static func get_items_by_stat(stat_key: String) -> Array[ItemData]:
 	return items
 
 # Função para obter itens aleatórios
-static func get_random_items(count: int) -> Array[ItemData]:
+func get_random_items(count: int) -> Array[ItemData]:
 	if all_items.is_empty():
 		initialize_items()
 	
@@ -134,14 +134,14 @@ static func get_random_items(count: int) -> Array[ItemData]:
 	return selected_items
 
 # Função para aplicar item
-static func apply_item(item: ItemData):
+func apply_item(item: ItemData):
 	if item and item.is_valid():
 		item.apply_item_effect()
 	else:
 		print("ItemManager: ERRO - Item inválido ou nulo")
 
 # Função para debug - listar todos os itens
-static func debug_list_all_items():
+func debug_list_all_items():
 	print("ItemManager: === LISTA DE ITENS ===")
 	for i in range(all_items.size()):
 		var item = all_items[i]
