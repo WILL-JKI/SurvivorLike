@@ -94,6 +94,8 @@ func hit_enemy(enemy: Node2D):
 				break
 		
 		# Chamar take_damage com a assinatura correta
+		print("IceProjectile: DEBUG - Aplicando dano %.1f a %s (knockback: %s)" % [damage, enemy.name, has_knockback_param])
+		
 		if has_knockback_param:
 			enemy.take_damage(damage, knockback_vector)
 			print("IceProjectile: Dano e knockback aplicados a %s: %.1f" % [enemy.name, damage])

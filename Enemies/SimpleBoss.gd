@@ -122,6 +122,8 @@ func _on_attack_area_exited(body):
 		target_player = null
 
 func take_damage(amount: float):
+	print("SimpleBoss: DEBUG - take_damage chamado com amount: %.1f" % amount)
+	
 	current_health -= amount
 	
 	# Efeito visual de dano (piscar vermelho)
@@ -129,7 +131,7 @@ func take_damage(amount: float):
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.3)
 	
-	print("Boss recebeu ", amount, " de dano. Vida: ", current_health, "/", max_health)
+	print("SimpleBoss: Dano recebido: %.1f, Vida restante: %.1f/%.1f" % [amount, current_health, max_health])
 	
 	if current_health <= 0:
 		die()

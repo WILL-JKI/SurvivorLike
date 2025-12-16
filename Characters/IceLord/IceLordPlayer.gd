@@ -275,6 +275,8 @@ func apply_projectile_upgrades(projectile: IceProjectile):
 	var final_damage = base_damage + (shatter_damage_bonus if is_target_frozen(null) else 0.0)
 	projectile.damage = final_damage
 	
+	print("IceLordPlayer: DEBUG Dano - base_damage: %.1f, shatter_bonus: %.1f, final_damage: %.1f" % [base_damage, shatter_damage_bonus, final_damage])
+	
 	# Aplicar knockback global
 	var knockback_mult = GameManager.get_stat("knockback")
 	projectile.knockback_force *= knockback_mult
