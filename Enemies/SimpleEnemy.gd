@@ -17,6 +17,13 @@ var poison_damage: float = 0.0
 var poison_timer: float = 0.0
 var attack_cooldown: float = 0.0
 
+# Sistema de Frost (Ice Lord)
+var frost_stacks: int = 0
+var is_frozen: bool = false
+var base_movement_speed: float  # Para restaurar velocidade após frost
+var freeze_timer: float = 0.0
+var freeze_duration: float = 3.0
+
 # Variáveis de knockback
 var knockback_velocity: Vector2 = Vector2.ZERO
 var knockback_friction: float = 600.0
@@ -28,6 +35,7 @@ var knockback_friction: float = 600.0
 func _ready():
 	# Inicializar variáveis
 	current_health = max_health
+	base_movement_speed = movement_speed  # Salvar velocidade original
 	
 	# Configurar grupos
 	add_to_group("enemies")
@@ -38,6 +46,7 @@ func _ready():
 
 func _physics_process(delta):
 	handle_poison(delta)
+	handle_frost(delta)
 	handle_knockback(delta)
 	update_attack_cooldown(delta)
 	find_target()
@@ -84,30 +93,142 @@ func move_towards_target(delta):
 	move_and_slide()
 
 func take_damage(amount: float, knockback_force: Vector2 = Vector2.ZERO):
-	current_health -= amount
+	var final_damage = amount
+	var damage_type = "normal"
+	
+	# Bônus de Shatter se estiver congelado
+	if is_frozen:
+		final_damage *= 1.5  # 50% de bônus de dano
+		damage_type = "shatter"
+		
+		# Quebrar o gelo (descongelar imediatamente)
+		unfreeze_enemy()
+		
+		# Efeito visual especial de shatter
+		create_shatter_effect()
+		
+		print("SHATTER! Dano aumentado de %.1f para %.1f" % [amount, final_damage])
+	
+	current_health -= final_damage
 	
 	# Aplicar knockback
 	if knockback_force != Vector2.ZERO:
 		apply_knockback(knockback_force)
 	
-	# Efeito visual de dano (piscar vermelho)
-	modulate = Color.RED
+	# Efeito visual de dano
+	if damage_type == "shatter":
+		modulate = Color.CYAN  # Azul para shatter
+	else:
+		modulate = Color.RED   # Vermelho normal
+	
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.2)
 	
 	# Mostrar número de dano
-	show_damage_number(amount, "normal")
+	show_damage_number(final_damage, damage_type)
 	
-	print("Inimigo recebeu ", amount, " de dano. Vida: ", current_health)
+	print("Inimigo recebeu %.1f de dano (%s). Vida: %.1f" % [final_damage, damage_type, current_health])
 	
 	if current_health <= 0:
 		die()
+
+func create_shatter_effect():
+	# Efeito visual especial quando um inimigo congelado é quebrado
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	# Flash azul brilhante
+	tween.tween_property(sprite, "modulate", Color.CYAN, 0.1)
+	tween.tween_property(sprite, "modulate", Color.WHITE, 0.3).set_delay(0.1)
+	
+	# Efeito de "explosão" de gelo
+	tween.tween_property(sprite, "scale", sprite.scale * 1.3, 0.1)
+	tween.tween_property(sprite, "scale", sprite.scale, 0.2).set_delay(0.1)
 
 func apply_poison(damage: float, duration: float):
 	is_poisoned = true
 	poison_damage = damage
 	poison_timer = duration
 	print("Inimigo foi envenenado!")
+
+# Sistema de Frost (Ice Lord)
+func apply_frost(amount: int):
+	frost_stacks += amount
+	
+	# Reduzir velocidade em 10% por stack
+	var speed_reduction = frost_stacks * 0.1
+	movement_speed = base_movement_speed * (1.0 - min(speed_reduction, 0.8))  # Máximo 80% redução
+	
+	# Efeito visual de frost
+	var frost_intensity = min(frost_stacks / 3.0, 1.0)
+	modulate = Color.WHITE.lerp(Color(0.7, 0.7, 1.0, 1.0), frost_intensity)
+	
+	print("Inimigo recebeu %d frost stacks (total: %d). Velocidade: %.1f" % [amount, frost_stacks, movement_speed])
+	
+	# Verificar se deve congelar
+	if frost_stacks >= 3 and not is_frozen:
+		freeze_enemy()
+
+func freeze_enemy():
+	is_frozen = true
+	movement_speed = 0.0  # Parar completamente
+	freeze_timer = freeze_duration
+	
+	# Efeito visual de congelamento
+	modulate = Color(0.5, 0.5, 1.0, 1.0)  # Azul forte
+	
+	# Efeito de escala para indicar congelamento
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "scale", sprite.scale * 1.1, 0.2)
+	tween.tween_property(sprite, "scale", sprite.scale, 0.2).set_delay(0.2)
+	
+	print("Inimigo CONGELADO por %.1f segundos!" % freeze_duration)
+
+func handle_frost(delta):
+	if is_frozen:
+		freeze_timer -= delta
+		
+		# Descongelar quando o timer acabar
+		if freeze_timer <= 0:
+			unfreeze_enemy()
+	else:
+		# Reduzir frost stacks gradualmente (1 stack a cada 2 segundos)
+		if frost_stacks > 0:
+			var stack_decay_rate = 0.5  # stacks por segundo
+			frost_stacks = max(0, frost_stacks - int(stack_decay_rate * delta))
+			
+			# Atualizar velocidade baseada nos stacks restantes
+			if frost_stacks > 0:
+				var speed_reduction = frost_stacks * 0.1
+				movement_speed = base_movement_speed * (1.0 - min(speed_reduction, 0.8))
+				
+				# Atualizar visual
+				var frost_intensity = min(frost_stacks / 3.0, 1.0)
+				modulate = Color.WHITE.lerp(Color(0.7, 0.7, 1.0, 1.0), frost_intensity)
+			else:
+				# Sem frost stacks, restaurar normal
+				movement_speed = base_movement_speed
+				modulate = Color.WHITE
+
+func unfreeze_enemy():
+	is_frozen = false
+	frost_stacks = max(0, frost_stacks - 1)  # Perder 1 stack ao descongelar
+	
+	# Restaurar velocidade baseada nos stacks restantes
+	if frost_stacks > 0:
+		var speed_reduction = frost_stacks * 0.1
+		movement_speed = base_movement_speed * (1.0 - min(speed_reduction, 0.8))
+		
+		# Visual de frost reduzido
+		var frost_intensity = min(frost_stacks / 3.0, 1.0)
+		modulate = Color.WHITE.lerp(Color(0.7, 0.7, 1.0, 1.0), frost_intensity)
+	else:
+		# Sem frost, restaurar completamente
+		movement_speed = base_movement_speed
+		modulate = Color.WHITE
+	
+	print("Inimigo descongelado! Frost stacks restantes: %d" % frost_stacks)
 
 func handle_poison(delta):
 	if is_poisoned:

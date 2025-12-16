@@ -1,0 +1,46 @@
+[gd_scene load_steps=4 format=3 uid="uid://bvxk8qj2n5m7p"]
+
+[ext_resource type="Script" path="res://levels/Debug/UniversalTestLevel.gd" id="1_universal"]
+[ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="2_spawner"]
+[ext_resource type="PackedScene" uid="uid://dvbi3lpqnf0tr" path="res://_Core/SimpleDebugUI.tscn" id="3_debug"]
+
+[node name="UniversalTestLevel" type="Node2D"]
+script = ExtResource("1_universal")
+initial_enemies = 5
+boss_spawn_delay = 30.0
+spawn_positions_radius = 400.0
+
+[node name="EnemySpawner" type="Node2D" parent="."]
+script = ExtResource("2_spawner")
+spawn_distance_min = 200.0
+spawn_distance_max = 350.0
+spawn_rate = 3.0
+max_enemies = 25
+enemies_per_spawn = 1
+
+[node name="BossSpawnTimer" type="Timer" parent="."]
+wait_time = 30.0
+one_shot = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Instructions" type="Label" parent="UI"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -120.0
+offset_right = -10.0
+offset_bottom = -10.0
+text = "UNIVERSAL TEST LEVEL
+
+ENTER: Spawn extra enemies
+SPACE: Force boss spawn  
+ESC: Return to character selection
+F3: Debug UI"
+horizontal_alignment = 2
+vertical_alignment = 2
+
+[node name="SimpleDebugUI" parent="." instance=ExtResource("3_debug")]

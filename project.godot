@@ -22,6 +22,7 @@ NodeGroupCache="*res://_Core/NodeGroupCache.gd"
 FontManager="*res://_Core/FontManager.gd"
 DebugManager="*res://_Core/DebugManager.gd"
 GameManager="*res://_Core/GameManager.gd"
+SummonManager="*res://_Core/SummonManager.gd"
 
 [display]
 

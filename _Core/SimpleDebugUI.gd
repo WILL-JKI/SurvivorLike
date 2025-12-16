@@ -139,6 +139,28 @@ func update_debug_info():
 		debug_lines.append("XP: %s/%s" % [str(player_info.experience), str(player_info.exp_to_next)])
 		debug_lines.append("")
 	
+	# SummonManager Stats (se disponível)
+	if SummonManager:
+		var summon_stats = SummonManager.get_stats()
+		debug_lines.append("[color=orange][b]SUMMON SYSTEM[/b][/color]")
+		debug_lines.append("Active: %d/%d" % [summon_stats.active_minions, SummonManager.max_active_minions])
+		debug_lines.append("Pool: %d total" % summon_stats.pool_size)
+		debug_lines.append("Cached Enemies: %d" % summon_stats.cached_enemies)
+		debug_lines.append("AI Batch Size: %d" % SummonManager.ai_update_batch_size)
+		debug_lines.append("")
+	
+	# Level Info (se for UniversalTestLevel)
+	var level_info = get_level_info()
+	if level_info:
+		debug_lines.append("[color=magenta][b]LEVEL INFO[/b][/color]")
+		debug_lines.append("Level: %s" % level_info.level_name)
+		debug_lines.append("Character: %s" % level_info.character)
+		debug_lines.append("Boss: %s" % ("Spawned" if level_info.boss_spawned else "Waiting"))
+		if not level_info.boss_spawned and level_info.boss_timer > 0:
+			debug_lines.append("Boss in: %.1fs" % level_info.boss_timer)
+		debug_lines.append("Time: %.1fs" % level_info.elapsed_time)
+		debug_lines.append("")
+	
 	# Controles
 	debug_lines.append("[color=magenta][b]CONTROLS[/b][/color]")
 	debug_lines.append("ESC: Toggle Debug")
@@ -194,3 +216,9 @@ func format_bytes(bytes: int) -> String:
 		unit_index += 1
 	
 	return str(snapped(size, 0.1)) + " " + units[unit_index]
+func get_level_info() -> Dictionary:
+	# Tentar obter informações do level se for UniversalTestLevel
+	var level_node = get_tree().current_scene
+	if level_node and level_node.has_method("get_level_info"):
+		return level_node.get_level_info()
+	return {}

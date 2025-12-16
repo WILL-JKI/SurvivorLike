@@ -32,14 +32,12 @@ func start_game(level_scene: String = ""):
 	
 	# Definir cena do level
 	if level_scene.is_empty():
-		# Usar level padrão baseado no personagem
-		match selected_character.character_id:
-			"berserker":
-				level_scene = "res://levels/Debug/BerserkerTestLevel.tscn"
-			"rat_king":
-				level_scene = "res://levels/Debug/DebugLevel.tscn"
-			_:
-				level_scene = "res://levels/Debug/DebugLevel.tscn"
+		# Tentar usar level universal, com fallback para DebugLevel
+		if FileAccess.file_exists("res://levels/Debug/UniversalTestLevel.tscn"):
+			level_scene = "res://levels/Debug/UniversalTestLevel.tscn"
+		else:
+			print("GameManager: UniversalTestLevel.tscn não encontrado, usando DebugLevel como fallback")
+			level_scene = "res://levels/Debug/DebugLevel.tscn"
 	
 	current_level = level_scene
 	

@@ -14,14 +14,14 @@ Como os arquivos .tscn estão com problemas de parse, siga estas instruções pa
    - `Timer` (filho de BerserkerWeapon, renomeie para "AttackTimer")
 
 6. **Configure o CollisionShape2D:**
-   - Shape: New CircleShape2D
-   - Radius: 50
+   - Shape: New RectangleShape2D
+   - Size: Vector2(80, 60) - representa a área da espada
    - Disabled: true (marque a checkbox)
 
 7. **Configure o Sprite2D:**
    - Texture: res://icon.svg
-   - Modulate: Color(1, 0.5, 0.5, 0.8) - vermelho translúcido
-   - Scale: Vector2(0.5, 0.5)
+   - Modulate: Color(0.8, 0.8, 1.0, 0.9) - azul metálico (espada)
+   - Scale: Vector2(0.8, 0.3) - formato alongado de espada
 
 8. **Configure o AttackTimer:**
    - Wait Time: 0.3
@@ -103,8 +103,10 @@ Como os arquivos .tscn estão com problemas de parse, siga estas instruções pa
 2. **Execute o projeto** (F5)
 3. **Teste as mecânicas:**
    - WASD para mover
-   - Aproxime-se dos inimigos
-   - Ataque automático deve ativar
+   - A espada ataca automaticamente na direção do movimento
+   - Se há inimigos próximos, ataca na direção do inimigo mais próximo
+   - Área de ataque em cone à frente (60 graus)
+   - Knockback na direção do ataque
    - ESC para debug UI
 
 ## Scripts Já Prontos
@@ -115,3 +117,26 @@ Os scripts já estão criados e funcionais:
 - ✅ `BerserkerUpgrades.gd`
 
 Apenas as cenas (.tscn) precisam ser criadas no editor seguindo as instruções acima.
+
+## Nova Jogabilidade da Espada
+
+### Mecânica Direcional
+- **Ataque Inteligente**: A espada ataca automaticamente na direção do inimigo mais próximo
+- **Controle Direcional**: Se não há inimigos próximos, ataca na direção do último movimento
+- **Área de Cone**: Ataque em cone de 60 graus à frente do player
+- **Alcance**: 80 pixels de alcance da espada
+- **Knockback Direcional**: Empurra inimigos na direção do ataque
+
+### Diferenças do Sistema Anterior
+- ❌ **Antes**: Vórtice circular ao redor do player
+- ✅ **Agora**: Espada direcional à frente do player
+- ❌ **Antes**: Ataque em todas as direções
+- ✅ **Agora**: Ataque focado em cone direcional
+- ❌ **Antes**: Knockback radial
+- ✅ **Agora**: Knockback na direção do ataque
+
+### Estratégia de Jogo
+1. **Posicionamento**: Importante se posicionar para atingir múltiplos inimigos
+2. **Movimento Tático**: Use WASD para controlar a direção do ataque
+3. **Fúria Inteligente**: Mais inimigos próximos = ataques mais rápidos
+4. **Combate Direcional**: Empurre inimigos para longe ou contra paredes

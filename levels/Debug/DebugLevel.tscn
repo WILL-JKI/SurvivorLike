@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" path="res://Enemies/TestBoss.tscn" id="2"]
 [ext_resource type="PackedScene" uid="uid://b0l34p3bq1h60" path="res://levels/Debug/debug.tscn" id="3_72vkr"]
 [ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="4"]
-[ext_resource type="PackedScene" uid="uid://simple_debug_ui" path="res://_Core/SimpleDebugUI.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://dvbi3lpqnf0tr" path="res://_Core/SimpleDebugUI.tscn" id="5"]
 
 [node name="DebugLevel" type="Node2D"]
 
@@ -15,6 +15,7 @@ scale = Vector2(2, 2)
 
 [node name="RatKing" parent="." instance=ExtResource("1")]
 position = Vector2(400, 300)
+max_minions = 150
 
 [node name="TestBoss" parent="." instance=ExtResource("2")]
 position = Vector2(600, 200)

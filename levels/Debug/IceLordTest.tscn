@@ -1,0 +1,58 @@
+[gd_scene load_steps=4 format=3 uid="uid://ice_lord_test_level"]
+
+[ext_resource type="PackedScene" uid="uid://b72g8yjwpl6da" path="res://Characters/IceLord/IceLordPlayer.tscn" id="1_ice_lord"]
+[ext_resource type="PackedScene" path="res://Enemies/SimpleEnemy.tscn" id="2_enemy"]
+[ext_resource type="Script" uid="uid://dvaj4s3jmh1ac" path="res://_Core/EnemySpawner.gd" id="3_spawner"]
+
+[node name="IceLordTestLevel" type="Node2D"]
+
+[node name="IceLordPlayer" parent="." instance=ExtResource("1_ice_lord")]
+
+[node name="EnemySpawner" type="Node2D" parent="."]
+script = ExtResource("3_spawner")
+spawn_distance_min = 150.0
+spawn_distance_max = 250.0
+spawn_rate = 2.0
+max_enemies = 15
+enemies_per_spawn = 1
+
+[node name="TestEnemies" type="Node2D" parent="."]
+
+[node name="SimpleEnemy" parent="TestEnemies" instance=ExtResource("2_enemy")]
+position = Vector2(150, 0)
+
+[node name="SimpleEnemy2" parent="TestEnemies" instance=ExtResource("2_enemy")]
+position = Vector2(-150, 0)
+
+[node name="SimpleEnemy3" parent="TestEnemies" instance=ExtResource("2_enemy")]
+position = Vector2(0, 150)
+
+[node name="SimpleEnemy4" parent="TestEnemies" instance=ExtResource("2_enemy")]
+position = Vector2(100, 100)
+
+[node name="SimpleEnemy5" parent="TestEnemies" instance=ExtResource("2_enemy")]
+position = Vector2(-100, -100)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Instructions" type="Label" parent="UI"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -120.0
+offset_right = -10.0
+offset_bottom = -10.0
+text = "ICE LORD TEST LEVEL
+
+WASD: Move
+Projéteis miram automaticamente
+Observe frost stacks nos inimigos
+3+ stacks = CONGELADO (azul)
+Dano em congelados = SHATTER
+
+ESC: Voltar ao menu"
+horizontal_alignment = 2
+vertical_alignment = 2

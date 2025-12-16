@@ -132,38 +132,29 @@ func get_is_moving() -> bool:
 	return is_moving
 
 func _on_spawn_timer_timeout():
-	# Spawnar múltiplos minions se necessário
+	# Spawnar múltiplos minions usando SummonManager
 	for i in spawn_burst_count:
-		if active_minions.size() < max_minions:
+		if SummonManager.active_minions.size() < max_minions:
 			spawn_minion()
 		else:
 			break
 
 func spawn_minion():
-	if not minion_scene:
-		print("Erro: Cena do minion não encontrada!")
-		return
-	
-	# Instanciar o minion
-	var minion = minion_scene.instantiate() as RatMinion
-	if not minion:
-		print("Erro: Falha ao instanciar minion!")
-		return
-	
 	# Configurar posição de spawn (ao redor do player)
 	var spawn_offset = Vector2(randf_range(-30, 30), randf_range(-30, 30))
-	minion.global_position = global_position + spawn_offset
+	var spawn_position = global_position + spawn_offset
 	
-	# Aplicar stats do player ao minion
-	configure_minion(minion)
-	
-	# Adicionar à cena e lista
-	get_parent().add_child(minion)
-	active_minions.append(minion)
+	# Usar SummonManager para spawnar
+	var minion = SummonManager.spawn_minion(spawn_position, self)
+	if minion:
+		# Aplicar stats do player ao minion
+		configure_minion(minion)
+		active_minions.append(minion)  # Manter lista local para compatibilidade
 
 func configure_minion(minion: RatMinion):
-	# Definir referência ao Rat King
+	# Definir referências
 	minion.rat_king = self
+	minion.summoner = self  # Para SummonManager
 	
 	# Aplicar stats base
 	minion.speed = minion_speed
@@ -182,7 +173,7 @@ func configure_minion(minion: RatMinion):
 		minion.damage *= 1.5  # Kamikaze faz mais dano
 
 func clean_dead_minions():
-	# Remover minions mortos da lista
+	# Remover minions mortos da lista local (SummonManager gerencia a lista principal)
 	active_minions = active_minions.filter(func(minion): return is_instance_valid(minion))
 
 func gain_experience(amount: int):
@@ -350,9 +341,10 @@ func get_player_info() -> Dictionary:
 		"max_health": max_health,
 		"experience": current_experience,
 		"exp_to_next": experience_to_next_level,
-		"active_minions": active_minions.size(),
+		"active_minions": SummonManager.active_minions.size(),
 		"max_minions": max_minions,
-		"evolution_route": evolution_route
+		"evolution_route": evolution_route,
+		"summon_stats": SummonManager.get_stats()
 	}
 
 # Sistema de Câmera

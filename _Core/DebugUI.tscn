@@ -45,6 +45,8 @@ horizontal_alignment = 1
 [node name="DebugLabel" type="RichTextLabel" parent="DebugPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_fonts/normal_font = ExtResource("2_607lq")
+theme_override_font_sizes/normal_font_size = 14
 bbcode_enabled = true
 text = "Debug information will appear here..."
 fit_content = true

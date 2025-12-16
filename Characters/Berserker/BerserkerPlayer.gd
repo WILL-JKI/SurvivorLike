@@ -30,6 +30,7 @@ var current_level: int = 1
 var evolution_route: String = ""  # "giant", "duelist", ou ""
 var enemies_in_fury_range: int = 0
 var current_attack_cooldown: float = 0.0
+var last_movement_direction: Vector2 = Vector2.RIGHT  # Direção do último movimento
 
 # Variáveis de knockback
 var knockback_velocity: Vector2 = Vector2.ZERO
@@ -108,6 +109,8 @@ func handle_movement(delta):
 	if input_vector != Vector2.ZERO:
 		input_vector = input_vector.normalized()
 		velocity = input_vector * movement_speed
+		# Atualizar direção do último movimento para ataques
+		last_movement_direction = input_vector
 	else:
 		velocity = Vector2.ZERO
 
@@ -137,14 +140,45 @@ func attack():
 	var fury_reduction = enemies_in_fury_range * fury_multiplier
 	var effective_cooldown = base_cooldown * (1.0 - min(fury_reduction, 0.8))  # Máximo 80% redução
 	
-	# Iniciar ataque
-	weapon.attack()
+	# Determinar direção do ataque
+	var attack_direction = get_attack_direction()
+	
+	# Iniciar ataque da espada na direção determinada
+	weapon.attack(attack_direction)
 	
 	# Configurar próximo ataque
 	attack_timer.wait_time = effective_cooldown
 	attack_timer.start()
 	
-	print("BerserkerPlayer: Atacando! Cooldown: %.2f (Inimigos próximos: %d)" % [effective_cooldown, enemies_in_fury_range])
+	print("BerserkerPlayer: Espada atacando na direção: %s! Cooldown: %.2f" % [attack_direction, effective_cooldown])
+
+func get_attack_direction() -> Vector2:
+	# Prioridade: direção para o inimigo mais próximo, senão direção do movimento
+	var nearest_enemy = find_nearest_enemy_in_fury()
+	
+	if nearest_enemy:
+		# Atacar na direção do inimigo mais próximo
+		return (nearest_enemy.global_position - global_position).normalized()
+	else:
+		# Atacar na direção do último movimento
+		return last_movement_direction
+
+func find_nearest_enemy_in_fury() -> Node2D:
+	# Encontrar o inimigo mais próximo dentro do range de fúria
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	var nearest_enemy: Node2D = null
+	var nearest_distance: float = 150.0  # Range de detecção para ataque direcional
+	
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		
+		var distance = global_position.distance_to(enemy.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_enemy = enemy
+	
+	return nearest_enemy
 
 func _on_attack_timer_timeout():
 	# Timer pronto para próximo ataque

@@ -11,11 +11,14 @@ signal attack_completed()
 @export var knockback_force: float = 300.0
 @export var area_size: float = 1.0  # Multiplicador de escala
 @export var attack_duration: float = 0.3  # Duração do ataque
+@export var attack_range: float = 80.0  # Alcance da espada
+@export var attack_width: float = 60.0  # Largura do cone de ataque
 
 # Variáveis internas
 var current_damage: float
 var is_attacking: bool = false
 var hit_enemies: Array[Node2D] = []  # Evitar hit múltiplo no mesmo ataque
+var attack_direction: Vector2 = Vector2.RIGHT  # Direção do ataque da espada
 
 # Referências dos nós
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -46,40 +49,61 @@ func _ready():
 	
 	print("BerserkerWeapon: Arma inicializada")
 
-func attack() -> void:
+func attack(direction: Vector2 = Vector2.RIGHT) -> void:
 	if is_attacking:
 		return
 	
 	is_attacking = true
 	hit_enemies.clear()
+	attack_direction = direction.normalized()
+	
+	# Posicionar e orientar a espada na direção do ataque
+	position_sword_for_attack()
 	
 	# Ativar colisão
 	set_collision_enabled(true)
 	
-	# Animação de ataque (rotação)
-	create_attack_animation()
+	# Animação de ataque (slash)
+	create_sword_animation()
 	
 	# Timer para desativar
 	attack_timer.start()
 	
-	print("BerserkerWeapon: Ataque iniciado - Dano: ", current_damage)
+	print("BerserkerWeapon: Espada atacando na direção: ", attack_direction, " - Dano: ", current_damage)
 
-func create_attack_animation():
-	# Animação de rotação da arma
+func position_sword_for_attack():
+	# Posicionar a espada à frente do player na direção do ataque
+	var offset_distance = attack_range * 0.5  # Meio do alcance
+	global_position = get_parent().global_position + (attack_direction * offset_distance)
+	
+	# Orientar a espada na direção do ataque
+	rotation = attack_direction.angle()
+	
+	# Ajustar a collision shape para ser retangular (espada)
+	if collision_shape and collision_shape.shape is CircleShape2D:
+		var rect_shape = RectangleShape2D.new()
+		rect_shape.size = Vector2(attack_range, attack_width) * area_size
+		collision_shape.shape = rect_shape
+
+func create_sword_animation():
+	# Animação de slash da espada
 	var tween = create_tween()
 	tween.set_parallel(true)
 	
-	# Rotação completa
-	var start_rotation = sprite.rotation
-	tween.tween_property(sprite, "rotation", start_rotation + TAU, attack_duration)
+	# Movimento de slash (arco)
+	var start_angle = attack_direction.angle() - 0.5  # -30 graus
+	var end_angle = attack_direction.angle() + 0.5    # +30 graus
 	
-	# Efeito de escala (pulso)
+	sprite.rotation = start_angle
+	tween.tween_property(sprite, "rotation", end_angle, attack_duration)
+	
+	# Efeito de escala (alongamento da espada)
 	var original_scale = sprite.scale
-	tween.tween_property(sprite, "scale", original_scale * 1.2, attack_duration * 0.5)
-	tween.tween_property(sprite, "scale", original_scale, attack_duration * 0.5).set_delay(attack_duration * 0.5)
+	tween.tween_property(sprite, "scale", Vector2(original_scale.x * 1.5, original_scale.y * 0.8), attack_duration * 0.3)
+	tween.tween_property(sprite, "scale", original_scale, attack_duration * 0.7).set_delay(attack_duration * 0.3)
 	
-	# Efeito de cor (flash)
-	tween.tween_property(sprite, "modulate", Color.RED, 0.1)
+	# Efeito de cor (flash metálico)
+	tween.tween_property(sprite, "modulate", Color.CYAN, 0.1)
 	tween.tween_property(sprite, "modulate", Color.WHITE, 0.2).set_delay(0.1)
 
 func _on_area_entered(area: Area2D):
@@ -101,16 +125,16 @@ func hit_enemy(enemy: Node2D):
 	if enemy in hit_enemies:
 		return
 	
+	# Verificar se o inimigo está na direção do ataque (cone)
+	if not is_enemy_in_attack_cone(enemy):
+		return
+	
 	hit_enemies.append(enemy)
 	
 	# Aplicar dano
 	if enemy.has_method("take_damage"):
-		# Calcular knockback para passar junto com o dano
-		var player_pos = get_parent().global_position
-		var enemy_pos = enemy.global_position
-		var knockback_direction = (enemy_pos - player_pos).normalized()
-		var knockback_vec = knockback_direction * knockback_force
-		
+		# Knockback na direção do ataque da espada
+		var knockback_vec = attack_direction * knockback_force
 		enemy.take_damage(current_damage, knockback_vec)
 	
 	# Aplicar knockback
@@ -122,7 +146,24 @@ func hit_enemy(enemy: Node2D):
 	# Efeito visual no inimigo
 	create_hit_effect(enemy)
 	
-	print("BerserkerWeapon: Inimigo atingido - Dano: ", current_damage)
+	print("BerserkerWeapon: Inimigo atingido pela espada - Dano: ", current_damage)
+
+func is_enemy_in_attack_cone(enemy: Node2D) -> bool:
+	# Verificar se o inimigo está no cone de ataque da espada
+	var player_pos = get_parent().global_position
+	var enemy_pos = enemy.global_position
+	var to_enemy = (enemy_pos - player_pos).normalized()
+	
+	# Verificar distância
+	var distance = player_pos.distance_to(enemy_pos)
+	if distance > attack_range * area_size:
+		return false
+	
+	# Verificar ângulo (cone de 60 graus)
+	var angle_diff = abs(attack_direction.angle_to(to_enemy))
+	var max_angle = deg_to_rad(30)  # 30 graus para cada lado = 60 graus total
+	
+	return angle_diff <= max_angle
 
 func apply_knockback(enemy: Node2D):
 	# Knockback já foi aplicado junto com o dano na função take_damage

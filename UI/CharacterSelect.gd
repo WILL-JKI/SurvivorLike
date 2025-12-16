@@ -61,7 +61,7 @@ func create_default_characters():
 	var berserker = CharacterResource.new()
 	berserker.character_name = "Berserker"
 	berserker.character_id = "berserker"
-	berserker.description = "[color=red][b]GUERREIRO FURIOSO[/b][/color]\n\nEspecialista em combate corpo a corpo com área de efeito. Quanto mais inimigos próximos, mais rápido ataca.\n\n[color=yellow]Mecânica Única:[/color] Sistema de Fúria - velocidade de ataque aumenta com densidade de inimigos.\n\n[color=cyan]Evoluções:[/color]\n• Gigante: Área massiva, mais lento\n• Duelista: Duas armas, muito rápido"
+	berserker.description = "[color=red][b]GUERREIRO FURIOSO[/b][/color]\n\nEspecialista em combate corpo a corpo com área de efeito. Quanto mais inimigos próximos, mais rápido ataca.\n\n[color=yellow]Mecânica:[/color] Sistema de Fúria\n[color=cyan]Evoluções:[/color] Gigante / Duelista"
 	berserker.player_scene_path = "res://Characters/Berserker/BerserkerPlayer.tscn"
 	berserker.base_health = 120.0
 	berserker.base_speed = 100.0
@@ -77,7 +77,7 @@ func create_default_characters():
 	var rat_king = CharacterResource.new()
 	rat_king.character_name = "Rei dos Ratos"
 	rat_king.character_id = "rat_king"
-	rat_king.description = "[color=purple][b]INVOCADOR SOMBRIO[/b][/color]\n\nComanda uma horda de ratos minions que lutam por você. Estratégia baseada em números e controle.\n\n[color=yellow]Mecânica Única:[/color] Invocação automática de minions com diferentes comportamentos.\n\n[color=cyan]Evoluções:[/color]\n• Enxame: Muitos ratos fracos\n• Fera: Poucos ratos gigantes"
+	rat_king.description = "[color=purple][b]INVOCADOR SOMBRIO[/b][/color]\n\nComanda uma horda de ratos minions que lutam por você. Estratégia baseada em números e controle.\n\n[color=yellow]Mecânica:[/color] Invocação automática\n[color=cyan]Evoluções:[/color] Enxame / Fera"
 	rat_king.player_scene_path = "res://Characters/RatKing/RatKing.tscn"
 	rat_king.base_health = 100.0
 	rat_king.base_speed = 120.0
@@ -89,23 +89,23 @@ func create_default_characters():
 	rat_king.portrait_texture = preload("res://icon.svg")  # Placeholder
 	rat_king.big_portrait_texture = preload("res://icon.svg")  # Placeholder
 	
-	# Maga (placeholder para futuro)
-	var mage = CharacterResource.new()
-	mage.character_name = "Maga Elemental"
-	mage.character_id = "mage"
-	mage.description = "[color=blue][b]MESTRA DOS ELEMENTOS[/b][/color]\n\n[color=red]EM DESENVOLVIMENTO[/color]\n\nEspecialista em magia elemental com projéteis e áreas de efeito devastadoras.\n\n[color=yellow]Mecânica Única:[/color] Combinação de elementos para efeitos especiais.\n\n[color=cyan]Evoluções:[/color]\n• Fogo: Dano massivo\n• Gelo: Controle e lentidão"
-	mage.player_scene_path = ""  # Ainda não implementado
-	mage.base_health = 80.0
-	mage.base_speed = 90.0
-	mage.base_damage = 35.0
-	mage.weapon_type = "Projéteis Mágicos"
-	mage.character_class = "Ranged DPS"
-	mage.difficulty = "Hard"
-	mage.special_ability = "Combinação Elemental"
-	mage.portrait_texture = preload("res://icon.svg")  # Placeholder
-	mage.big_portrait_texture = preload("res://icon.svg")  # Placeholder
+	# Ice Lord
+	var ice_lord = CharacterResource.new()
+	ice_lord.character_name = "Ice Lord"
+	ice_lord.character_id = "ice_lord"
+	ice_lord.description = "[color=cyan][b]SENHOR DO GELO[/b][/color]\n\nMago de controle com frost stacks e congelamento. Desacelera inimigos e causa dano com combos.\n\n[color=yellow]Mecânica:[/color] Frost Stacks → Freeze → Shatter\n[color=cyan]Evoluções:[/color] Blizzard / Lance"
+	ice_lord.player_scene_path = "res://Characters/IceLord/IceLordPlayer.tscn"
+	ice_lord.base_health = 80.0
+	ice_lord.base_speed = 110.0
+	ice_lord.base_damage = 15.0
+	ice_lord.weapon_type = "Projéteis de Gelo"
+	ice_lord.character_class = "Control Mage"
+	ice_lord.difficulty = "Medium"
+	ice_lord.special_ability = "Frost Combo System"
+	ice_lord.portrait_texture = preload("res://icon.svg")  # Placeholder
+	ice_lord.big_portrait_texture = preload("res://icon.svg")  # Placeholder
 	
-	available_characters = [berserker, rat_king, mage]
+	available_characters = [berserker, rat_king, ice_lord]
 
 func populate_character_grid():
 	print("CharacterSelect: Populando grid com %d personagens" % available_characters.size())
@@ -147,18 +147,34 @@ func create_character_button(character: CharacterResource, index: int) -> Textur
 	# Tooltip
 	button.tooltip_text = character.character_name
 	
+	# Verificar se o personagem está implementado
+	var is_implemented = FileAccess.file_exists(character.player_scene_path)
+	
 	# Adicionar um Label como filho para mostrar o nome
 	var label = Label.new()
 	label.text = character.character_name
+	if not is_implemented:
+		label.text += "\n(WIP)"
+	
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	label.anchors_preset = Control.PRESET_BOTTOM_WIDE
-	label.offset_top = -20
-	label.add_theme_color_override("font_color", Color.WHITE)
+	label.offset_top = -30 if not is_implemented else -20
+	
+	# Cor diferente para personagens não implementados
+	if is_implemented:
+		label.add_theme_color_override("font_color", Color.WHITE)
+	else:
+		label.add_theme_color_override("font_color", Color.ORANGE)
+	
 	label.add_theme_color_override("font_shadow_color", Color.BLACK)
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
 	button.add_child(label)
+	
+	# Modular o botão se não implementado
+	if not is_implemented:
+		button.modulate = Color(1.0, 1.0, 1.0, 0.7)  # Mais transparente
 	
 	print("CharacterSelect: Botão criado para ", character.character_name)
 	return button

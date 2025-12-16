@@ -23,6 +23,7 @@ enum State {
 var current_state: State = State.FOLLOW_KING
 var target_enemy: Node2D = null
 var rat_king: Node2D = null
+var summoner: Node2D = null  # Referência para SummonManager
 var velocity: Vector2 = Vector2.ZERO
 var lifetime: float = 30.0  # Tempo de vida do minion
 var attack_cooldown: float = 0.0
@@ -53,16 +54,18 @@ func _ready():
 	# Configurar posição na formação
 	setup_formation_position()
 	
-	# Configurar timer de vida
+	# Configurar timer de vida (desabilitado por padrão com SummonManager)
 	lifetime_timer.wait_time = lifetime
 	lifetime_timer.timeout.connect(_on_lifetime_expired)
-	lifetime_timer.start()
+	# Não iniciar o timer automaticamente - só se necessário
+	# lifetime_timer.start()
 	
 	# Configurar collision layer/mask
 	collision_layer = 4  # Layer dos minions
 	collision_mask = 2   # Mask dos inimigos
 
 func _physics_process(delta):
+	# Sistema híbrido: IA individual + otimizações do SummonManager
 	update_state()
 	execute_state(delta)
 	
@@ -136,7 +139,13 @@ func execute_state(delta):
 				perform_attack()
 
 func find_nearest_enemy() -> Node2D:
-	var enemies = get_tree().get_nodes_in_group("enemies")
+	# Usar cache do SummonManager se disponível
+	var enemies: Array
+	if SummonManager and SummonManager.cached_enemies.size() > 0:
+		enemies = SummonManager.cached_enemies
+	else:
+		enemies = get_tree().get_nodes_in_group("enemies")
+	
 	var nearest_enemy: Node2D = null
 	var nearest_distance: float = detection_range
 	
@@ -212,7 +221,12 @@ func _on_area_entered(area):
 			perform_attack()
 
 func _on_lifetime_expired():
-	queue_free()
+	# Com SummonManager, retornar ao pool em vez de destruir
+	if SummonManager:
+		SummonManager.despawn_minion(self)
+	else:
+		# Fallback para sistema antigo
+		queue_free()
 
 # Funções de comportamento com o Rat King
 func find_rat_king():
