@@ -46,6 +46,8 @@ func create_item_button_template():
 	print("ItemSelectionUI: Template de botão configurado (criação direta)")
 
 func show_item_selection(items: Array[ItemData]):
+	print("ItemSelectionUI: show_item_selection chamado com %d itens" % items.size())
+	
 	available_items = items
 	
 	# Limpar container anterior
@@ -54,15 +56,18 @@ func show_item_selection(items: Array[ItemData]):
 	# Criar botões para cada item
 	for i in range(items.size()):
 		var item = items[i]
+		print("ItemSelectionUI: Criando botão para item %d: %s" % [i, item.display_name])
 		create_item_button(item, i)
 	
+	print("ItemSelectionUI: Mostrando UI...")
 	# Mostrar UI
 	show()
 	
+	print("ItemSelectionUI: Pausando jogo...")
 	# Pausar o jogo
 	get_tree().paused = true
 	
-	print("ItemSelectionUI: Mostrando %d itens para seleção" % items.size())
+	print("ItemSelectionUI: UI mostrada com %d itens para seleção" % items.size())
 
 func clear_items_container():
 	if not items_container:
@@ -222,7 +227,19 @@ func _input(event):
 
 # Função para mostrar seleção aleatória
 func show_random_selection(count: int = 3):
+	print("ItemSelectionUI: show_random_selection chamado com count: %d" % count)
+	
+	if not ItemManager:
+		print("ItemSelectionUI: ERRO - ItemManager é null!")
+		return
+	
 	var random_items = ItemManager.get_random_items(count)
+	print("ItemSelectionUI: ItemManager retornou %d itens" % random_items.size())
+	
+	if random_items.is_empty():
+		print("ItemSelectionUI: ERRO - Nenhum item retornado pelo ItemManager!")
+		return
+	
 	show_item_selection(random_items)
 
 # Função para mostrar itens específicos

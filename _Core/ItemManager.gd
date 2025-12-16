@@ -120,8 +120,13 @@ func get_items_by_stat(stat_key: String) -> Array[ItemData]:
 
 # Função para obter itens aleatórios
 func get_random_items(count: int) -> Array[ItemData]:
+	print("ItemManager: get_random_items chamado com count: %d" % count)
+	print("ItemManager: all_items.size(): %d" % all_items.size())
+	
 	if all_items.is_empty():
+		print("ItemManager: all_items vazio, inicializando...")
 		initialize_items()
+		print("ItemManager: Após inicialização, all_items.size(): %d" % all_items.size())
 	
 	var available_items = all_items.duplicate()
 	var selected_items: Array[ItemData] = []
@@ -131,6 +136,7 @@ func get_random_items(count: int) -> Array[ItemData]:
 		selected_items.append(available_items[random_index])
 		available_items.remove_at(random_index)
 	
+	print("ItemManager: Retornando %d itens selecionados" % selected_items.size())
 	return selected_items
 
 # Função para aplicar item
